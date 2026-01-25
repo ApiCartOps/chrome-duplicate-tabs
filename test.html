@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Page for Duplicate Tabs Extension</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        .instructions {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .step {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+        .note {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #2196F3;
+            margin: 20px 0;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Duplicate Tabs Manager - Test Page</h1>
+    
+    <div class="instructions">
+        <h2>How to Test the Extension</h2>
+        
+        <div class="step">
+            <strong>Step 1:</strong> Install the extension
+            <ul>
+                <li>Open Chrome and go to <code>chrome://extensions/</code></li>
+                <li>Enable "Developer mode" (toggle in top right)</li>
+                <li>Click "Load unpacked"</li>
+                <li>Select the extension directory</li>
+            </ul>
+        </div>
+        
+        <div class="step">
+            <strong>Step 2:</strong> Create duplicate tabs for testing
+            <ul>
+                <li>Open this page in multiple tabs (Ctrl/Cmd + Click the tab)</li>
+                <li>Open any other website in multiple tabs</li>
+                <li>For example, open Google.com in 2-3 tabs</li>
+            </ul>
+        </div>
+        
+        <div class="step">
+            <strong>Step 3:</strong> Test the extension
+            <ul>
+                <li>Click the extension icon in the toolbar</li>
+                <li>The popup will automatically scan for duplicates</li>
+                <li>Review the list of duplicate tabs</li>
+                <li>Click "Download CSV" to export the list</li>
+            </ul>
+        </div>
+        
+        <div class="note">
+            <strong>💡 Note:</strong> The CSV file will include:
+            <ul>
+                <li>URL of each duplicate tab</li>
+                <li>Title of each tab</li>
+                <li>Tab ID (Chrome internal identifier)</li>
+                <li>Window ID (which window the tab is in)</li>
+                <li>Duplicate Count (how many tabs have the same URL)</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="instructions">
+        <h2>Expected CSV Format</h2>
+        <pre style="background-color: #f4f4f4; padding: 15px; border-radius: 4px; overflow-x: auto;">
+URL,Title,Tab ID,Window ID,Duplicate Count
+https://example.com/test,Test Page for Duplicate Tabs Extension,123,1,3
+https://example.com/test,Test Page for Duplicate Tabs Extension,456,1,3
+https://example.com/test,Test Page for Duplicate Tabs Extension,789,2,3
+https://www.google.com,Google,234,1,2
+https://www.google.com,Google,567,1,2
+        </pre>
+    </div>
+</body>
+</html>

@@ -56,7 +56,8 @@ async function scanForDuplicates() {
     statusDiv.textContent = `Found ${duplicates.length} set(s) of duplicate tabs`;
   } catch (error) {
     statusDiv.className = 'status warning';
-    statusDiv.textContent = `Error: ${error.message}`;
+    statusDiv.textContent = 'Unable to scan tabs. Please try again.';
+    console.error('Error scanning for duplicates:', error);
   }
 }
 
@@ -132,8 +133,8 @@ function downloadCsv() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   
-  // Generate filename with timestamp
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+  // Generate filename with timestamp (remove milliseconds and timezone from ISO string)
+  const timestamp = new Date().toISOString().split('.')[0].replace(/[:-]/g, '-');
   const filename = `duplicate-tabs-${timestamp}.csv`;
   
   link.setAttribute('href', url);
@@ -159,8 +160,8 @@ function escapeCSV(field) {
   
   const stringField = String(field);
   
-  // If field contains comma, quote, or newline, wrap in quotes and escape existing quotes
-  if (stringField.includes(',') || stringField.includes('"') || stringField.includes('\n')) {
+  // If field contains comma, quote, newline, or carriage return, wrap in quotes and escape existing quotes
+  if (stringField.includes(',') || stringField.includes('"') || stringField.includes('\n') || stringField.includes('\r')) {
     return `"${stringField.replace(/"/g, '""')}"`;
   }
   
