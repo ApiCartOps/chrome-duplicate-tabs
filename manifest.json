@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Chrome Duplicate Tabs Manager",
+  "version": "1.0.0",
+  "description": "Manage and view all your Chrome tabs",
+  "permissions": ["tabs"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "View All Tabs"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%234285f4'/></svg>",
+    "48": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><rect width='48' height='48' fill='%234285f4'/></svg>",
+    "128": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><rect width='128' height='128' fill='%234285f4'/></svg>"
+  }
+}
