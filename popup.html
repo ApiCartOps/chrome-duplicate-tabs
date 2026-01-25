@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duplicate Tabs Manager</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Duplicate Tabs Manager</h1>
+    
+    <div class="button-group">
+      <button id="duplicateCurrentTab" class="btn btn-primary">
+        <span class="icon">📋</span>
+        Duplicate Current Tab
+      </button>
+      
+      <button id="duplicateCurrentTabInBackground" class="btn btn-secondary">
+        <span class="icon">🔇</span>
+        Duplicate in Background
+      </button>
+      
+      <button id="duplicateAllTabs" class="btn btn-warning">
+        <span class="icon">📚</span>
+        Duplicate All Tabs
+      </button>
+      
+      <button id="duplicateMultipleTimes" class="btn btn-info">
+        <span class="icon">✖️</span>
+        Duplicate Current 5 Times
+      </button>
+    </div>
+    
+    <div class="status" id="status"></div>
+    
+    <div class="info">
+      <p class="small-text">Click any button to duplicate tabs instantly</p>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
