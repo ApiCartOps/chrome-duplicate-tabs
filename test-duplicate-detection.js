@@ -1,6 +1,10 @@
 /**
  * Integration test for duplicate tab detection logic
  * Simulates the duplicate detection algorithm
+ * 
+ * Note: The functions below are duplicated from background.js for testing.
+ * Chrome extension service workers cannot be directly imported into Node.js
+ * tests, so we maintain this duplication to validate the logic independently.
  */
 
 function normalizeUrl(url) {

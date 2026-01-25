@@ -4,8 +4,10 @@
  */
 
 // Import the function we want to test
-// Note: In a real Chrome extension, we'd need to structure this differently
-// For testing purposes, we'll duplicate the function here
+// Note: This function is duplicated from background.js for testing purposes.
+// Chrome extension service workers run in a browser context and cannot be
+// directly imported into Node.js tests, so we duplicate the implementation
+// here to validate the logic independently.
 
 function normalizeUrl(url) {
   if (!url) return '';
