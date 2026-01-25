@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duplicate Tabs Manager</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Duplicate Tabs Manager</h1>
+    </header>
+
+    <main>
+      <section class="actions">
+        <button id="duplicateCurrentTab" class="btn btn-primary">
+          <span class="icon">📋</span>
+          Duplicate Current Tab
+        </button>
+
+        <button id="duplicateAllTabs" class="btn btn-secondary">
+          <span class="icon">📑</span>
+          Duplicate All Tabs
+        </button>
+
+        <button id="duplicateToGroup" class="btn btn-accent">
+          <span class="icon">📁</span>
+          Duplicate to New Group
+        </button>
+      </section>
+
+      <section class="info">
+        <div class="stat">
+          <span class="stat-label">Current Tab:</span>
+          <span id="currentTabInfo" class="stat-value">Loading...</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Total Tabs:</span>
+          <span id="totalTabs" class="stat-value">0</span>
+        </div>
+      </section>
+
+      <section class="status">
+        <div id="statusMessage" class="status-message"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p class="footer-text">Made with ❤️ for productivity</p>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
