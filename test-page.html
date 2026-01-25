@@ -66,8 +66,10 @@
             <ol>
                 <li>Open this page in multiple tabs</li>
                 <li>Use the links below to create tabs with different hash fragments</li>
-                <li>Click the "Duplicate Tabs Manager" extension icon</li>
+                <li><strong>Watch the extension icon badge</strong> - it will show a red number indicating how many duplicate tabs exist</li>
+                <li>Click the "Duplicate Tabs Manager" extension icon to close duplicates</li>
                 <li>The extension will keep only the first occurrence of each URL and close duplicates</li>
+                <li>The badge count will update automatically as duplicates are removed</li>
             </ol>
         </div>
 
@@ -94,9 +96,11 @@
         <div class="test-section">
             <h3>Expected Behavior</h3>
             <ul>
+                <li><strong>Badge Display:</strong> The extension icon shows a red badge with the count of duplicate tabs</li>
+                <li><strong>Real-time Updates:</strong> The badge count updates automatically when you open or close tabs</li>
                 <li>URLs with different hash fragments (<code>#section1</code>, <code>#section2</code>) are treated as duplicates</li>
                 <li>Only the first occurrence of each normalized URL is kept</li>
-                <li>All subsequent duplicates are automatically closed</li>
+                <li>All subsequent duplicates are automatically closed when you click the icon</li>
                 <li>Check the browser console for logs about closed tabs</li>
             </ul>
         </div>
