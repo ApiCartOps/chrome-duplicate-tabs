@@ -83,8 +83,22 @@ async function closeDuplicates(url) {
     
     console.log(`Closed ${response.closed} duplicate tabs for ${url}`);
     
-    // Reload the duplicate info
-    setTimeout(loadDuplicateInfo, 500);
+    // Listen for storage changes to refresh UI
+    // This is more reliable than a fixed timeout
+    const storageListener = (changes, area) => {
+      if (area === 'local' && changes.duplicateCount) {
+        chrome.storage.onChanged.removeListener(storageListener);
+        loadDuplicateInfo();
+      }
+    };
+    
+    chrome.storage.onChanged.addListener(storageListener);
+    
+    // Fallback timeout in case storage doesn't update
+    setTimeout(() => {
+      chrome.storage.onChanged.removeListener(storageListener);
+      loadDuplicateInfo();
+    }, 1000);
   } catch (error) {
     console.error('Error closing duplicates:', error);
   }

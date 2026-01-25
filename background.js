@@ -200,6 +200,7 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getDuplicateInfo') {
     sendResponse(getDuplicateInfo());
+    return false; // Synchronous response
   } else if (request.action === 'closeDuplicates') {
     // Close all duplicate tabs for a specific URL
     const urlToClose = request.url;
@@ -219,13 +220,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     
     // Close the duplicate tabs
     if (tabsToClose.length > 0) {
-      chrome.tabs.remove(tabsToClose);
+      chrome.tabs.remove(tabsToClose, () => {
+        if (chrome.runtime.lastError) {
+          console.error('Error closing tabs:', chrome.runtime.lastError);
+          sendResponse({ closed: 0, error: chrome.runtime.lastError.message });
+        } else {
+          sendResponse({ closed: tabsToClose.length });
+        }
+      });
+    } else {
+      sendResponse({ closed: 0 });
     }
-    
-    sendResponse({ closed: tabsToClose.length });
+    return true; // Keep channel open for async response
   }
   
-  return true; // Keep the message channel open for async response
+  return false; // Default: no async response needed
 });
 
 // Initialize when the service worker starts
