@@ -113,8 +113,11 @@ chrome.tabs.onCreated.addListener(() => {
   updateBadge();
 });
 
-chrome.tabs.onUpdated.addListener(() => {
-  updateBadge();
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  // Only update badge when URL changes to avoid unnecessary updates
+  if (changeInfo.url) {
+    updateBadge();
+  }
 });
 
 chrome.tabs.onRemoved.addListener(() => {
