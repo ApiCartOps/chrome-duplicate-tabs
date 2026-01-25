@@ -1,3 +1,6 @@
+// Default favicon for tabs without a favicon
+const DEFAULT_FAVICON = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><rect width="16" height="16" fill="%23e0e0e0"/></svg>';
+
 document.addEventListener('DOMContentLoaded', async () => {
   const tabsList = document.getElementById('tabs-list');
   
@@ -18,8 +21,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Create favicon image
       const favicon = document.createElement('img');
       // Use tab's favicon or a default icon if not available
-      favicon.src = tab.favIconUrl || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><rect width="16" height="16" fill="%23e0e0e0"/></svg>';
-      favicon.alt = 'Favicon';
+      favicon.src = tab.favIconUrl || DEFAULT_FAVICON;
+      favicon.alt = `Favicon for ${tab.title || 'Untitled'}`;
+      // Fallback to default icon if favicon fails to load
+      favicon.onerror = () => {
+        favicon.src = DEFAULT_FAVICON;
+      };
       
       // Create tab info container
       const tabInfo = document.createElement('div');
