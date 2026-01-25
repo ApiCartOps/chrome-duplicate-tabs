@@ -16,6 +16,53 @@ function normalizeUrl(url) {
 }
 
 /**
+ * Count duplicate tabs without closing them
+ * @returns {number} - The number of duplicate tabs
+ */
+async function countDuplicateTabs() {
+  try {
+    // Get all tabs
+    const tabs = await chrome.tabs.query({});
+    
+    // Track seen URLs (normalized)
+    const seenUrls = new Map();
+    let duplicateCount = 0;
+    
+    // Process tabs in order
+    for (const tab of tabs) {
+      const normalizedUrl = normalizeUrl(tab.url);
+      
+      if (seenUrls.has(normalizedUrl)) {
+        // This is a duplicate
+        duplicateCount++;
+      } else {
+        // First occurrence - keep it
+        seenUrls.set(normalizedUrl, tab.id);
+      }
+    }
+    
+    return duplicateCount;
+  } catch (error) {
+    console.error('Error counting duplicate tabs:', error);
+    return 0;
+  }
+}
+
+/**
+ * Update the extension badge with the duplicate count
+ */
+async function updateBadge() {
+  const count = await countDuplicateTabs();
+  
+  if (count > 0) {
+    chrome.action.setBadgeText({ text: count.toString() });
+    chrome.action.setBadgeBackgroundColor({ color: '#FF0000' });
+  } else {
+    chrome.action.setBadgeText({ text: '' });
+  }
+}
+
+/**
  * Find and close duplicate tabs
  * Keeps the first occurrence of each URL and closes the rest
  */
@@ -48,6 +95,9 @@ async function closeDuplicateTabs() {
     } else {
       console.log('No duplicate tabs found');
     }
+    
+    // Update badge after closing duplicates
+    await updateBadge();
   } catch (error) {
     console.error('Error closing duplicate tabs:', error);
   }
@@ -57,5 +107,21 @@ async function closeDuplicateTabs() {
 chrome.action.onClicked.addListener(() => {
   closeDuplicateTabs();
 });
+
+// Listen for tab changes to update badge
+chrome.tabs.onCreated.addListener(() => {
+  updateBadge();
+});
+
+chrome.tabs.onUpdated.addListener(() => {
+  updateBadge();
+});
+
+chrome.tabs.onRemoved.addListener(() => {
+  updateBadge();
+});
+
+// Initialize badge on startup
+updateBadge();
 
 console.log('Duplicate Tabs Manager initialized');
