@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duplicate Tabs Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #4CAF50;
+        }
+        .test-links {
+            margin: 10px 0;
+        }
+        .test-links a {
+            display: block;
+            margin: 5px 0;
+            padding: 10px;
+            background: #2196F3;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .test-links a:hover {
+            background: #0b7dda;
+        }
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Duplicate Tabs Test Page</h1>
+        
+        <div class="instructions">
+            <h2>How to Test the Extension</h2>
+            <ol>
+                <li>Open this page in multiple tabs</li>
+                <li>Use the links below to create tabs with different hash fragments</li>
+                <li><strong>Watch the extension icon badge</strong> - it will show a red number indicating how many duplicate tabs exist</li>
+                <li>Click the "Duplicate Tabs Manager" extension icon to close duplicates</li>
+                <li>The extension will keep only the first occurrence of each URL and close duplicates</li>
+                <li>The badge count will update automatically as duplicates are removed</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h3>Test Case 1: Same URL with Different Hashes</h3>
+            <p>These links point to the same page but with different hash fragments. They should be detected as duplicates.</p>
+            <div class="test-links">
+                <a href="#section1" target="_blank">Open #section1</a>
+                <a href="#section2" target="_blank">Open #section2</a>
+                <a href="#section3" target="_blank">Open #section3</a>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test Case 2: Exact Duplicates</h3>
+            <p>These are the exact same URL. Only the first should remain open.</p>
+            <div class="test-links">
+                <a href="?test=duplicate" target="_blank">Duplicate URL 1</a>
+                <a href="?test=duplicate" target="_blank">Duplicate URL 2</a>
+                <a href="?test=duplicate" target="_blank">Duplicate URL 3</a>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>Expected Behavior</h3>
+            <ul>
+                <li><strong>Badge Display:</strong> The extension icon shows a red badge with the count of duplicate tabs</li>
+                <li><strong>Real-time Updates:</strong> The badge count updates automatically when you open or close tabs</li>
+                <li>URLs with different hash fragments (<code>#section1</code>, <code>#section2</code>) are treated as duplicates</li>
+                <li>Only the first occurrence of each normalized URL is kept</li>
+                <li>All subsequent duplicates are automatically closed when you click the icon</li>
+                <li>Check the browser console for logs about closed tabs</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>Current Page URL</h3>
+            <p id="current-url"></p>
+            <p id="normalized-url"></p>
+        </div>
+    </div>
+
+    <script>
+        // Display current URL information
+        document.getElementById('current-url').innerHTML = 
+            `<strong>Full URL:</strong> <code>${window.location.href}</code>`;
+        
+        const normalizedUrl = window.location.href.split('#')[0];
+        document.getElementById('normalized-url').innerHTML = 
+            `<strong>Normalized (without hash):</strong> <code>${normalizedUrl}</code>`;
+    </script>
+</body>
+</html>

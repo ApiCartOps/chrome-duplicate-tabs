@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Duplicate Tabs Manager",
+  "version": "1.0.0",
+  "description": "Automatically detects and closes duplicate tabs",
+  "permissions": [
+    "tabs"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Close Duplicate Tabs"
+  }
+}
