@@ -61,18 +61,23 @@ class TabManager {
   async duplicateAllTabs() {
     try {
       const allTabs = await chrome.tabs.query({ currentWindow: true });
-      let duplicatedCount = 0;
+      
+      // Duplicate all tabs concurrently for better performance
+      const duplicatePromises = allTabs.map(tab => 
+        chrome.tabs.duplicate(tab.id)
+      );
 
-      for (const tab of allTabs) {
-        try {
-          await chrome.tabs.duplicate(tab.id);
-          duplicatedCount++;
-        } catch (error) {
-          console.error(`Error duplicating tab ${tab.id}:`, error);
+      const results = await Promise.allSettled(duplicatePromises);
+      const duplicatedCount = results.filter(r => r.status === 'fulfilled').length;
+      
+      // Log any failures
+      results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          console.error(`Error duplicating tab ${allTabs[index].id}:`, result.reason);
         }
-      }
+      });
 
-      this.showStatus(`✓ Duplicated ${duplicatedCount} tab(s)!`, 'success');
+      this.showStatus(`✓ Duplicated ${duplicatedCount} of ${allTabs.length} tab(s)!`, 'success');
       await this.loadCurrentTabInfo();
     } catch (error) {
       this.showStatus('Failed to duplicate tabs', 'error');
