@@ -95,8 +95,7 @@ function normalizeUrl(url) {
     // Skip chrome:// and other internal URLs
     if (url.startsWith('chrome://') || 
         url.startsWith('chrome-extension://') ||
-        url.startsWith('about:') ||
-        url.startsWith('edge://')) {
+        url.startsWith('about:')) {
       return url;
     }
     
@@ -200,7 +199,7 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getDuplicateInfo') {
     sendResponse(getDuplicateInfo());
-    return false; // Synchronous response
+    return false; // No async response needed
   } else if (request.action === 'closeDuplicates') {
     // Close all duplicate tabs for a specific URL
     const urlToClose = request.url;

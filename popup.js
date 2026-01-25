@@ -1,5 +1,8 @@
 // Popup script for Chrome Duplicate Tabs Manager
 
+// Configuration constants
+const FALLBACK_TIMEOUT_MS = 1000; // Fallback timeout for storage updates
+
 /**
  * Load and display duplicate information
  */
@@ -98,7 +101,7 @@ async function closeDuplicates(url) {
     setTimeout(() => {
       chrome.storage.onChanged.removeListener(storageListener);
       loadDuplicateInfo();
-    }, 1000);
+    }, FALLBACK_TIMEOUT_MS);
   } catch (error) {
     console.error('Error closing duplicates:', error);
   }
