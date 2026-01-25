@@ -1,3 +1,7 @@
+// Constants
+const DUPLICATE_COUNT = 5;
+const STATUS_TIMEOUT = 3000;
+
 // Show status message
 function showStatus(message, isError = false) {
   const statusElement = document.getElementById('status');
@@ -7,7 +11,7 @@ function showStatus(message, isError = false) {
   setTimeout(() => {
     statusElement.textContent = '';
     statusElement.className = 'status';
-  }, 3000);
+  }, STATUS_TIMEOUT);
 }
 
 // Duplicate current tab
@@ -51,7 +55,7 @@ async function duplicateAllTabs() {
 }
 
 // Duplicate current tab multiple times
-async function duplicateMultipleTimes(count = 5) {
+async function duplicateMultipleTimes(count = DUPLICATE_COUNT) {
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     
@@ -85,6 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   
   document.getElementById('duplicateMultipleTimes').addEventListener('click', () => {
-    duplicateMultipleTimes(5);
+    duplicateMultipleTimes(DUPLICATE_COUNT);
   });
 });
