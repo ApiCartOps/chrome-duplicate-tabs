@@ -4,9 +4,14 @@
   box-sizing: border-box;
 }
 
+.body-viewport {
+  /* wrapper for controlling popup viewport sizing when embedded in pages */
+}
+
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  width: 520px;
+  width: 90vw;
+  max-width: 900px;
   min-height: 320px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
@@ -18,7 +23,8 @@ body {
   background: #fff;
   border-radius: 10px;
   padding: 18px;
-  width: 500px;
+  width: 92%;
+  max-width: 860px;
   box-shadow: 0 10px 30px rgba(18, 22, 33, 0.18);
 }
 
