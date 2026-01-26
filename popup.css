@@ -4,9 +4,9 @@
   box-sizing: border-box;
 }
 
+/* keep default scrolling behavior; ensure popup content can flow naturally */
 html, body {
   height: 100%;
-  overflow: hidden;
 }
 
 .body-viewport {
@@ -19,9 +19,8 @@ body {
   width: auto;
   min-height: 320px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
+  padding: 12px;
 }
 
 .container {
@@ -32,17 +31,16 @@ body {
   display: flex;
   gap: 12px;
   align-items: stretch;
-  width: min(92%, 900px);
+  width: min(96vw, 900px);
   max-width: 900px;
   /* constrain overall popup height so internal content scrolls instead of whole popup */
   max-height: 640px;
   box-shadow: 0 10px 30px rgba(18, 22, 33, 0.18);
-  overflow: hidden;
 }
 
 .side-menu {
-  width: 120px;
-  min-width: 100px;
+  width: 88px;
+  min-width: 72px;
   background: linear-gradient(180deg, #f7f8fb, #ffffff);
   border-radius: 8px;
   padding: 10px;
