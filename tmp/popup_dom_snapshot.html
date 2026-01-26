@@ -1,25 +1,48 @@
-<div class="duplicate-group">
-      <div class="group-header">
-        <strong>https://example.com</strong> <span class="group-count">(2)</span>
-        <button class="btn-close-group" title="Close duplicates for this URL">Close duplicates</button>
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Tab Manager</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>📌 Smart Tab Manager</h1>
+      </header>
+
+      <div class="stats">
+        <div class="stat-item">
+          <span class="stat-label">Total Tabs:</span>
+          <span class="stat-value" id="totalTabs">2</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Duplicate Tabs:</span>
+          <span class="stat-value" id="duplicateTabs">0</span>
+        </div>
       </div>
-      <div class="group-items"><div class="tab-item">
-        <div class="tab-row">
-          
-          <div class="tab-content">
-            <div class="tab-title">Example A <span class="status-badge">complete</span></div>
-            <div class="tab-url">https://example.com</div>
+
+      <div class="actions">
+        <button id="listAllTabs" class="btn btn-primary">📋 List All Tabs</button>
+        <button id="listDuplicateTabs" class="btn btn-secondary">🔎 List Duplicates</button>
+        <button id="exportListBtn" class="btn btn-outline">📤 Export List</button>
+        <div class="export-controls">
+          <label><input type="checkbox" id="exportCsv" checked="" style=""> CSV</label>
+          <label><input type="checkbox" id="exportJson" style=""> JSON</label>
+          <div class="export-scope">
+            <label><input type="radio" name="exportScope" id="exportScopeAll" value="all" checked="" style=""> Export All</label>
+            <label><input type="radio" name="exportScope" id="exportScopeDuplicates" value="duplicates" style=""> Export Duplicates</label>
           </div>
-          <div class="tab-actions"><button class="btn-close">✖</button></div>
         </div>
-      </div><div class="tab-item">
-        <div class="tab-row">
-          
-          <div class="tab-content">
-            <div class="tab-title">Example B <span class="status-badge">complete</span></div>
-            <div class="tab-url">https://example.com</div>
-          </div>
-          <div class="tab-actions"><button class="btn-close">✖</button></div>
-        </div>
-      </div></div>
+        <button id="closeDuplicateTabs" class="btn btn-danger">🗑️ Close Duplicate Tabs</button>
+        <button id="groupTabsByDomain" class="btn btn-info">🗂️ Group Tabs by Domain</button>
+        <button id="closeTabsExceptActive" class="btn btn-warning">❌ Close Tabs Except Active One</button>
+      </div>
+
+      <div id="tabsList" class="tabs-list show"><p style="text-align: center; color: #999;">No duplicate tabs found</p></div>
     </div>
+
+    <script src="utils.js"></script>
+    <script src="popup.js"></script>
+  
+
+</body></html>
