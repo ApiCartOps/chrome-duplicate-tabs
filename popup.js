@@ -269,6 +269,23 @@ function toggleFullView() {
   } catch (e) { console.error('toggleFullView error', e); }
 }
 
+// Keyboard shortcut handler: toggle full view with `f` (when not typing in inputs)
+function handleKeydown(e) {
+  try {
+    if (!e || !e.key) return;
+    if (e.key.toLowerCase() === 'f') {
+      const active = document.activeElement;
+      if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)) return;
+      toggleFullView();
+    }
+  } catch (err) { console.error('handleKeydown error', err); }
+}
+
+// Attach keyboard listener during init
+try {
+  if (typeof document !== 'undefined') document.addEventListener('keydown', handleKeydown);
+} catch (e) {}
+
 // Export currently shown list as CSV/JSON
 async function exportList() {
   // decide scope: 'duplicates' or 'all'
