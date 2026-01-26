@@ -1,0 +1,15 @@
+{
+  "extensionId": "nmodhbajkgiaoniaonabnmehomecoobc",
+  "timestamp": 1769430705018,
+  "sw": null,
+  "storage": null,
+  "badge": null,
+  "attempts": [
+    {
+      "when": 1769430824054,
+      "stateFound": false,
+      "storageFound": false,
+      "badgeFound": false
+    }
+  ]
+}
