@@ -3,6 +3,7 @@ const totalTabsElement = document.getElementById('totalTabs');
 const duplicateTabsElement = document.getElementById('duplicateTabs');
 const tabsListElement = document.getElementById('tabsList');
 const listAllTabsBtn = document.getElementById('listAllTabs');
+const listDuplicateTabsBtn = document.getElementById('listDuplicateTabs');
 const closeDuplicateTabsBtn = document.getElementById('closeDuplicateTabs');
 const groupTabsByDomainBtn = document.getElementById('groupTabsByDomain');
 const closeTabsExceptActiveBtn = document.getElementById('closeTabsExceptActive');
@@ -87,6 +88,9 @@ const exec = {
   }
 };
 
+// Track which list is currently shown: 'all', 'duplicates', or null
+let currentListMode = null;
+
 // Update tab statistics
 async function updateStats() {
   const tabs = await exec.tabs.query({});
@@ -133,6 +137,7 @@ function getDomainFromUrl(url) {
 // Setup event listeners
 function setupEventListeners() {
   listAllTabsBtn.addEventListener('click', listAllTabs);
+  listDuplicateTabsBtn.addEventListener('click', listDuplicates);
   closeDuplicateTabsBtn.addEventListener('click', closeDuplicateTabs);
   groupTabsByDomainBtn.addEventListener('click', groupTabsByDomain);
   closeTabsExceptActiveBtn.addEventListener('click', closeTabsExceptActive);
@@ -140,6 +145,14 @@ function setupEventListeners() {
 
 // List all tabs
 async function listAllTabs() {
+  // Toggle: collapse if we're already showing the full list
+  if (currentListMode === 'all' && tabsListElement.classList.contains('show')) {
+    tabsListElement.innerHTML = '';
+    tabsListElement.classList.remove('show');
+    currentListMode = null;
+    return;
+  }
+
   const tabs = await exec.tabs.query({});
   const duplicateUrls = new Set();
 
@@ -158,6 +171,7 @@ async function listAllTabs() {
   // Clear existing list
   tabsListElement.innerHTML = '';
   tabsListElement.classList.add('show');
+  currentListMode = 'all';
 
   if (tabs.length === 0) {
     tabsListElement.innerHTML = '<p style="text-align: center; color: #999;">No tabs found</p>';
@@ -187,6 +201,51 @@ async function listAllTabs() {
 
     tabsListElement.appendChild(tabItem);
   });
+}
+
+// List only duplicate tabs
+async function listDuplicates() {
+  // Toggle: collapse if we're already showing duplicates
+  if (currentListMode === 'duplicates' && tabsListElement.classList.contains('show')) {
+    tabsListElement.innerHTML = '';
+    tabsListElement.classList.remove('show');
+    currentListMode = null;
+    return;
+  }
+
+  const tabs = await exec.tabs.query({});
+  const duplicates = (typeof utils !== 'undefined' && utils.findDuplicateTabs)
+    ? utils.findDuplicateTabs(tabs)
+    : findDuplicateTabs(tabs);
+
+  tabsListElement.innerHTML = '';
+  tabsListElement.classList.add('show');
+
+  if (duplicates.length === 0) {
+    tabsListElement.innerHTML = '<p style="text-align: center; color: #999;">No duplicate tabs found</p>';
+    return;
+  }
+
+  duplicates.forEach(tab => {
+    const tabItem = document.createElement('div');
+    tabItem.className = 'tab-item';
+
+    tabItem.innerHTML = `
+      <div class="tab-title">
+        ${tab.title || 'Untitled'}
+        <span class="duplicate-badge">DUPLICATE</span>
+      </div>
+      <div class="tab-url">${tab.url || ''}</div>
+    `;
+
+    tabItem.addEventListener('click', () => {
+      exec.tabs.update(tab.id, { active: true }).catch(() => {});
+      exec.windows.update(tab.windowId, { focused: true }).catch(() => {});
+    });
+
+    tabsListElement.appendChild(tabItem);
+  });
+  currentListMode = 'duplicates';
 }
 
 // Close duplicate tabs
