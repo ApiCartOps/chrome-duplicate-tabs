@@ -16,33 +16,38 @@ async function init() {
 // Update tab statistics
 async function updateStats() {
   const tabs = await chrome.tabs.query({});
-  const duplicates = findDuplicateTabs(tabs);
+  const duplicates = (typeof utils !== 'undefined' && utils.findDuplicateTabs)
+    ? utils.findDuplicateTabs(tabs)
+    : findDuplicateTabs(tabs);
 
   totalTabsElement.textContent = tabs.length;
   duplicateTabsElement.textContent = duplicates.length;
 }
 
 // Find duplicate tabs by URL
+// Use shared implementations from utils when available
 function findDuplicateTabs(tabs) {
+  if (typeof utils !== 'undefined' && utils.findDuplicateTabs) {
+    return utils.findDuplicateTabs(tabs);
+  }
   const urlMap = new Map();
   const duplicates = [];
-
   tabs.forEach(tab => {
-    if (tab.url) {
+    if (tab && tab.url) {
       if (urlMap.has(tab.url)) {
-        // This is a duplicate
         duplicates.push(tab);
       } else {
         urlMap.set(tab.url, tab);
       }
     }
   });
-
   return duplicates;
 }
 
-// Get domain from URL
 function getDomainFromUrl(url) {
+  if (typeof utils !== 'undefined' && utils.getDomainFromUrl) {
+    return utils.getDomainFromUrl(url);
+  }
   try {
     const urlObj = new URL(url);
     return urlObj.hostname;
@@ -126,6 +131,11 @@ async function closeDuplicateTabs() {
     await chrome.tabs.remove(tabIds);
     await updateStats();
 
+    // Tell background to refresh its state so the badge updates reliably
+    try {
+      chrome.runtime.sendMessage({ action: 'refresh' }).catch(() => {});
+    } catch (e) {}
+
     // Update the list if it's shown
     if (tabsListElement.classList.contains('show')) {
       await listAllTabs();
@@ -159,7 +169,7 @@ async function groupTabsByDomain() {
         // Update group title and color
         await chrome.tabGroups.update(groupId, {
           title: domain,
-          color: getRandomColor()
+          color: (typeof utils !== 'undefined' && utils.getRandomColor) ? utils.getRandomColor() : getRandomColor()
         });
 
         groupsCreated++;
@@ -178,6 +188,9 @@ async function groupTabsByDomain() {
 
 // Get random color for tab groups
 function getRandomColor() {
+  if (typeof utils !== 'undefined' && utils.getRandomColor) {
+    return utils.getRandomColor();
+  }
   const colors = ['grey', 'blue', 'red', 'yellow', 'green', 'pink', 'purple', 'cyan', 'orange'];
   return colors[Math.floor(Math.random() * colors.length)];
 }
@@ -206,6 +219,10 @@ async function closeTabsExceptActive() {
     await chrome.tabs.remove(tabIds);
     await updateStats();
 
+      try {
+        chrome.runtime.sendMessage({ action: 'refresh' }).catch(() => {});
+      } catch (e) {}
+
     // Clear the list since most tabs are gone
     if (tabsListElement.classList.contains('show')) {
       tabsListElement.innerHTML = '';
@@ -220,4 +237,3 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
-    if (tabsListElement.classList.contains('show')) {

@@ -200,6 +200,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getDuplicateInfo') {
     sendResponse(getDuplicateInfo());
     return false; // No async response needed
+  } else if (request.action === 'refresh') {
+    // Rebuild internal state from current tabs and update badge/storage
+    initializeTabs().then(() => sendResponse({ ok: true })).catch(err => sendResponse({ ok: false, error: err && err.message }));
+    return true; // async response
   } else if (request.action === 'closeDuplicates') {
     // Close all duplicate tabs for a specific URL
     const urlToClose = request.url;
