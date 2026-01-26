@@ -12,7 +12,8 @@
   },
   "scripts": {
     "test": "jest --runInBand",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "build:xpi": "npx web-ext build --source-dir . --overwrite-dest --artifacts-dir tests/playwright/.web-ext-artifacts && node ./scripts/convert-zip-to-xpi.js"
   }
   ,
   "jest": {

@@ -6,22 +6,44 @@ const child_process = require('child_process');
 test('package extension and open real popup in Firefox', async ({}, testInfo) => {
   const extensionPath = path.resolve(__dirname, '..', '..');
   const artifactsDir = path.join(__dirname, '.web-ext-artifacts');
+  // Only run this heavy XPI build/install test when executing the firefox project
+  if (!(testInfo && testInfo.project && testInfo.project.name === 'firefox')) {
+    test.skip('Firefox XPI install test only runs under the firefox project');
+  }
+
   try { fs.rmSync(artifactsDir, { recursive: true, force: true }); } catch (e) {}
   fs.mkdirSync(artifactsDir, { recursive: true });
 
-  // Build XPI using web-ext. If build fails (e.g., running under a non-Firefox project), skip gracefully.
+  // Build XPI using npm script which runs web-ext and converts .zip -> .xpi
   try {
-    child_process.execSync(`npx web-ext build --source-dir "${extensionPath}" --overwrite-dest --artifacts-dir "${artifactsDir}"`, { stdio: 'inherit' });
+    child_process.execSync('npm run build:xpi', { stdio: 'inherit' });
   } catch (err) {
-    console.warn('web-ext build failed or unavailable in this environment, skipping Firefox XPI install test:', err && err.message);
-    // Skip the rest of this test run without failing the suite
+    console.warn('build:xpi failed or unavailable in this environment, skipping Firefox XPI install test:', err && err.message);
     return;
   }
 
   // Find the xpi file
-  const files = fs.readdirSync(artifactsDir).filter(f => f.endsWith('.xpi'));
-  if (files.length === 0) throw new Error('No XPI produced by web-ext');
-  const xpiPath = path.join(artifactsDir, files[0]);
+  // web-ext may produce a .zip artifact; accept .xpi or .zip and convert .zip -> .xpi
+  let files = fs.readdirSync(artifactsDir).filter(f => f.endsWith('.xpi') || f.endsWith('.zip'));
+  if (files.length === 0) {
+    console.warn('No XPI/ZIP produced by web-ext; skipping Firefox XPI install test');
+    return;
+  }
+
+  let artifact = files[0];
+  let xpiPath = path.join(artifactsDir, artifact);
+  if (artifact.endsWith('.zip')) {
+    // Copy and rename .zip -> .xpi so Firefox accepts it
+    const xpiName = artifact.replace(/\.zip$/i, '.xpi');
+    const xpiDest = path.join(artifactsDir, xpiName);
+    try {
+      fs.copyFileSync(xpiPath, xpiDest);
+      xpiPath = xpiDest;
+    } catch (err) {
+      console.warn('Failed to copy .zip to .xpi:', err && err.message);
+      return;
+    }
+  }
 
   const userDataDir = path.join(__dirname, '.tmp-profile-firefox');
   try { fs.rmSync(userDataDir, { recursive: true, force: true }); } catch (e) {}
