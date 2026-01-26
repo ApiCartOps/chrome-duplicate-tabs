@@ -268,12 +268,21 @@ async function listAllTabs() {
 
     const isDuplicate = duplicateUrls.has(tab.url);
 
+    const faviconHtml = tab.favIconUrl ? `<img class="tab-favicon" src="${tab.favIconUrl}" alt="favicon">` : '';
+    const statusHtml = tab.status ? `<span class="status-badge">${tab.status}</span>` : '';
+
     tabItem.innerHTML = `
-      <div class="tab-title">
-        ${tab.title || 'Untitled'}
-        ${isDuplicate ? '<span class="duplicate-badge">DUPLICATE</span>' : ''}
+      <div class="tab-row">
+        ${faviconHtml}
+        <div class="tab-content">
+          <div class="tab-title">
+            ${tab.title || 'Untitled'}
+            ${isDuplicate ? '<span class="duplicate-badge">DUPLICATE</span>' : ''}
+            ${statusHtml}
+          </div>
+          <div class="tab-url">${tab.url || ''}</div>
+        </div>
       </div>
-      <div class="tab-url">${tab.url || ''}</div>
     `;
 
     // Make tab clickable to switch to it
@@ -313,12 +322,21 @@ async function listDuplicates() {
     const tabItem = document.createElement('div');
     tabItem.className = 'tab-item';
 
+    const faviconHtml = tab.favIconUrl ? `<img class="tab-favicon" src="${tab.favIconUrl}" alt="favicon">` : '';
+    const statusHtml = tab.status ? `<span class="status-badge">${tab.status}</span>` : '';
+
     tabItem.innerHTML = `
-      <div class="tab-title">
-        ${tab.title || 'Untitled'}
-        <span class="duplicate-badge">DUPLICATE</span>
+      <div class="tab-row">
+        ${faviconHtml}
+        <div class="tab-content">
+          <div class="tab-title">
+            ${tab.title || 'Untitled'}
+            <span class="duplicate-badge">DUPLICATE</span>
+            ${statusHtml}
+          </div>
+          <div class="tab-url">${tab.url || ''}</div>
+        </div>
       </div>
-      <div class="tab-url">${tab.url || ''}</div>
     `;
 
     tabItem.addEventListener('click', () => {
