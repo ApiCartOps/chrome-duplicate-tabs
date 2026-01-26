@@ -54,9 +54,9 @@ test.describe('export list downloads', () => {
     const pathDownloaded = await download.path();
     const content = await fs.readFile(pathDownloaded, 'utf8');
 
-    // CSV should have header + 3 rows
+    // CSV should have header + 3 rows and include favIconUrl and status in header
     const lines = content.trim().split(/\r?\n/);
-    expect(lines[0]).toContain('id,title,url,windowId');
+    expect(lines[0]).toContain('id,title,url,windowId,favIconUrl,status');
     expect(lines.length).toBe(4);
 
     await context.close();
@@ -106,6 +106,9 @@ test.describe('export list downloads', () => {
     const parsed = JSON.parse(content);
     expect(Array.isArray(parsed)).toBe(true);
     expect(parsed.length).toBe(3);
+    // JSON objects should include the extra fields (may be empty)
+    expect(parsed[0]).toHaveProperty('favIconUrl');
+    expect(parsed[0]).toHaveProperty('status');
 
     await context.close();
   });

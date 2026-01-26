@@ -165,20 +165,53 @@ async function exportList() {
   }
 
   const format = (exportFormatSelect && exportFormatSelect.value) ? exportFormatSelect.value : 'csv';
+  const timestamp = getTimestamp();
+  // Normalize tabs to include extra fields so JSON always has same shape
+  const normalized = tabs.map(t => ({
+    id: t.id,
+    title: t.title || '',
+    url: t.url || '',
+    windowId: t.windowId || '',
+    favIconUrl: t.favIconUrl || '',
+    status: t.status || ''
+  }));
+
   if (format === 'json') {
-    const content = JSON.stringify(tabs, null, 2);
-    triggerDownload(content, 'tabs-export.json', 'application/json');
+    const content = JSON.stringify(normalized, null, 2);
+    triggerDownload(content, `tabs-export-${timestamp}.json`, 'application/json');
   } else {
-    const csv = tabsToCsv(tabs);
-    triggerDownload(csv, 'tabs-export.csv', 'text/csv');
+    const csv = tabsToCsv(normalized);
+    triggerDownload(csv, `tabs-export-${timestamp}.csv`, 'text/csv');
   }
 }
 
 function tabsToCsv(tabs) {
-  const header = ['id', 'title', 'url', 'windowId'];
-  const rows = tabs.map(t => [t.id, (t.title || '').replace(/"/g, '""'), t.url, t.windowId || ''].map(field => `"${String(field)}"`).join(','));
+  const header = ['id', 'title', 'url', 'windowId', 'favIconUrl', 'status'];
+  const rows = tabs.map(t => {
+    const fields = [
+      t.id,
+      (t.title || '').replace(/"/g, '""'),
+      t.url || '',
+      t.windowId || '',
+      t.favIconUrl || '',
+      t.status || ''
+    ];
+    return fields.map(field => `"${String(field)}"`).join(',');
+  });
   return `${header.join(',')}\n${rows.join('\n')}`;
 
+}
+
+function getTimestamp() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  const YYYY = d.getFullYear();
+  const MM = pad(d.getMonth() + 1);
+  const DD = pad(d.getDate());
+  const hh = pad(d.getHours());
+  const mm = pad(d.getMinutes());
+  const ss = pad(d.getSeconds());
+  return `${YYYY}${MM}${DD}_${hh}${mm}${ss}`;
 }
 
 function triggerDownload(content, filename, mimeType) {
