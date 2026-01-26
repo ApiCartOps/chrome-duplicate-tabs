@@ -8,6 +8,7 @@ const closeDuplicateTabsBtn = document.getElementById('closeDuplicateTabs');
 const groupTabsByDomainBtn = document.getElementById('groupTabsByDomain');
 const closeTabsExceptActiveBtn = document.getElementById('closeTabsExceptActive');
 const exportListBtn = document.getElementById('exportListBtn');
+const toggleFullBtn = document.getElementById('toggleFullBtn');
 const exportCsvCheckbox = document.getElementById('exportCsv');
 const exportJsonCheckbox = document.getElementById('exportJson');
 const exportScopeAllRadio = document.getElementById('exportScopeAll');
@@ -243,9 +244,29 @@ function setupEventListeners() {
   if (listAllTabsBtn) listAllTabsBtn.addEventListener('click', listAllTabs);
   if (listDuplicateTabsBtn) listDuplicateTabsBtn.addEventListener('click', listDuplicates);
   if (exportListBtn) exportListBtn.addEventListener('click', exportList);
+  if (toggleFullBtn) toggleFullBtn.addEventListener('click', toggleFullView);
   if (closeDuplicateTabsBtn) closeDuplicateTabsBtn.addEventListener('click', closeDuplicateTabs);
   if (groupTabsByDomainBtn) groupTabsByDomainBtn.addEventListener('click', groupTabsByDomain);
   if (closeTabsExceptActiveBtn) closeTabsExceptActiveBtn.addEventListener('click', closeTabsExceptActive);
+}
+
+// Toggle full view: if opened as a normal tab (full=1) toggle CSS fullscreen class;
+// otherwise open a new tab with the full view parameter.
+function toggleFullView() {
+  try {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get('full') === '1') {
+      // toggle class to allow expansion in-page
+      const container = document.querySelector('.container');
+      if (container) container.classList.toggle('fullscreen');
+      return;
+    }
+    // open a new tab with the full param so user gets a full browser tab view
+    const fullUrl = chrome && chrome.runtime ? chrome.runtime.getURL('popup.html') + '?full=1' : window.location.href + '?full=1';
+    window.open(fullUrl, '_blank');
+    // close current popup to avoid duplicate windows
+    try { window.close(); } catch (e) {}
+  } catch (e) { console.error('toggleFullView error', e); }
 }
 
 // Export currently shown list as CSV/JSON

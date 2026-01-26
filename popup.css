@@ -38,6 +38,15 @@ body {
   box-shadow: 0 10px 30px rgba(18, 22, 33, 0.18);
 }
 
+/* Fullscreen variant used when opened as a tab or toggled in-page */
+.container.fullscreen {
+  width: 100% !important;
+  max-width: none !important;
+  height: 100vh !important;
+  border-radius: 0 !important;
+  padding: 12px !important;
+}
+
 .side-menu {
   width: 88px;
   min-width: 72px;
