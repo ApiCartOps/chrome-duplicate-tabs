@@ -1,11 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "Chrome Duplicate Tabs Manager",
+  "name": "Smart Tab Manager",
   "version": "1.0.0",
-  "description": "Manage and track duplicate tabs in Chrome",
+  "description": "Efficiently manage open tabs, detect and handle duplicate tabs",
   "permissions": [
     "tabs",
-    "storage"
+    "storage",
+    "tabGroups"
   ],
   "background": {
     "service_worker": "background.js"

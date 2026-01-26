@@ -1,111 +1,223 @@
-// Popup script for Chrome Duplicate Tabs Manager
+// DOM elements
+const totalTabsElement = document.getElementById('totalTabs');
+const duplicateTabsElement = document.getElementById('duplicateTabs');
+const tabsListElement = document.getElementById('tabsList');
+const listAllTabsBtn = document.getElementById('listAllTabs');
+const closeDuplicateTabsBtn = document.getElementById('closeDuplicateTabs');
+const groupTabsByDomainBtn = document.getElementById('groupTabsByDomain');
+const closeTabsExceptActiveBtn = document.getElementById('closeTabsExceptActive');
 
-// Configuration constants
-const FALLBACK_TIMEOUT_MS = 1000; // Fallback timeout for storage updates
+// Initialize the popup
+async function init() {
+  await updateStats();
+  setupEventListeners();
+}
 
-/**
- * Load and display duplicate information
- */
-async function loadDuplicateInfo() {
+// Update tab statistics
+async function updateStats() {
+  const tabs = await chrome.tabs.query({});
+  const duplicates = findDuplicateTabs(tabs);
+
+  totalTabsElement.textContent = tabs.length;
+  duplicateTabsElement.textContent = duplicates.length;
+}
+
+// Find duplicate tabs by URL
+function findDuplicateTabs(tabs) {
+  const urlMap = new Map();
+  const duplicates = [];
+
+  tabs.forEach(tab => {
+    if (tab.url) {
+      if (urlMap.has(tab.url)) {
+        // This is a duplicate
+        duplicates.push(tab);
+      } else {
+        urlMap.set(tab.url, tab);
+      }
+    }
+  });
+
+  return duplicates;
+}
+
+// Get domain from URL
+function getDomainFromUrl(url) {
   try {
-    // Request duplicate info from background script
-    const response = await chrome.runtime.sendMessage({ action: 'getDuplicateInfo' });
-    
-    // Update stats
-    document.getElementById('totalDuplicates').textContent = response.duplicateCount;
-    document.getElementById('uniqueUrls').textContent = response.duplicates.length;
-    
-    // Display duplicate list
-    displayDuplicates(response.duplicates);
-  } catch (error) {
-    console.error('Error loading duplicate info:', error);
-    document.getElementById('content').innerHTML = 
-      '<div class="loading">Error loading data</div>';
+    const urlObj = new URL(url);
+    return urlObj.hostname;
+  } catch (e) {
+    return 'Unknown';
   }
 }
 
-/**
- * Display the list of duplicate URLs
- */
-function displayDuplicates(duplicates) {
-  const contentDiv = document.getElementById('content');
-  
-  if (duplicates.length === 0) {
-    contentDiv.innerHTML = '<div class="no-duplicates">✓ No duplicate tabs found!</div>';
+// Setup event listeners
+function setupEventListeners() {
+  listAllTabsBtn.addEventListener('click', listAllTabs);
+  closeDuplicateTabsBtn.addEventListener('click', closeDuplicateTabs);
+  groupTabsByDomainBtn.addEventListener('click', groupTabsByDomain);
+  closeTabsExceptActiveBtn.addEventListener('click', closeTabsExceptActive);
+}
+
+// List all tabs
+async function listAllTabs() {
+  const tabs = await chrome.tabs.query({});
+  const duplicateUrls = new Set();
+
+  // Find duplicate URLs
+  const urlMap = new Map();
+  tabs.forEach(tab => {
+    if (tab.url) {
+      if (urlMap.has(tab.url)) {
+        duplicateUrls.add(tab.url);
+      } else {
+        urlMap.set(tab.url, tab);
+      }
+    }
+  });
+
+  // Clear existing list
+  tabsListElement.innerHTML = '';
+  tabsListElement.classList.add('show');
+
+  if (tabs.length === 0) {
+    tabsListElement.innerHTML = '<p style="text-align: center; color: #999;">No tabs found</p>';
     return;
   }
-  
-  // Create list of duplicates
-  const listDiv = document.createElement('div');
-  listDiv.className = 'duplicate-list';
-  
-  duplicates.forEach(({ url, count }) => {
-    const itemDiv = document.createElement('div');
-    itemDiv.className = 'duplicate-item';
-    
-    // URL display
-    const urlDiv = document.createElement('div');
-    urlDiv.className = 'duplicate-url';
-    urlDiv.textContent = url;
-    
-    // Info and action section
-    const infoDiv = document.createElement('div');
-    infoDiv.className = 'duplicate-info';
-    
-    const countSpan = document.createElement('span');
-    countSpan.className = 'duplicate-count';
-    countSpan.textContent = `${count} tabs`;
-    
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'close-btn';
-    closeBtn.textContent = `Close ${count - 1} duplicate${count - 1 > 1 ? 's' : ''}`;
-    closeBtn.addEventListener('click', () => closeDuplicates(url));
-    
-    infoDiv.appendChild(countSpan);
-    infoDiv.appendChild(closeBtn);
-    
-    itemDiv.appendChild(urlDiv);
-    itemDiv.appendChild(infoDiv);
-    
-    listDiv.appendChild(itemDiv);
+
+  // Create tab items
+  tabs.forEach(tab => {
+    const tabItem = document.createElement('div');
+    tabItem.className = 'tab-item';
+
+    const isDuplicate = duplicateUrls.has(tab.url);
+
+    tabItem.innerHTML = `
+      <div class="tab-title">
+        ${tab.title || 'Untitled'}
+        ${isDuplicate ? '<span class="duplicate-badge">DUPLICATE</span>' : ''}
+      </div>
+      <div class="tab-url">${tab.url || ''}</div>
+    `;
+
+    // Make tab clickable to switch to it
+    tabItem.addEventListener('click', () => {
+      chrome.tabs.update(tab.id, { active: true });
+      chrome.windows.update(tab.windowId, { focused: true });
+    });
+
+    tabsListElement.appendChild(tabItem);
   });
-  
-  contentDiv.innerHTML = '';
-  contentDiv.appendChild(listDiv);
 }
 
-/**
- * Close duplicate tabs for a specific URL
- */
-async function closeDuplicates(url) {
-  try {
-    const response = await chrome.runtime.sendMessage({
-      action: 'closeDuplicates',
-      url: url
-    });
-    
-    console.log(`Closed ${response.closed} duplicate tabs for ${url}`);
-    
-    // Listen for storage changes to refresh UI
-    // This is more reliable than a fixed timeout
-    const storageListener = (changes, area) => {
-      if (area === 'local' && changes.duplicateCount) {
-        chrome.storage.onChanged.removeListener(storageListener);
-        loadDuplicateInfo();
-      }
-    };
-    
-    chrome.storage.onChanged.addListener(storageListener);
-    
-    // Fallback timeout in case storage doesn't update
-    setTimeout(() => {
-      chrome.storage.onChanged.removeListener(storageListener);
-      loadDuplicateInfo();
-    }, FALLBACK_TIMEOUT_MS);
-  } catch (error) {
-    console.error('Error closing duplicates:', error);
+// Close duplicate tabs
+async function closeDuplicateTabs() {
+  const tabs = await chrome.tabs.query({});
+  const duplicates = findDuplicateTabs(tabs);
+
+  if (duplicates.length === 0) {
+    alert('No duplicate tabs found!');
+    return;
+  }
+
+  const confirmMsg = `Are you sure you want to close ${duplicates.length} duplicate tab(s)?`;
+  if (confirm(confirmMsg)) {
+    const tabIds = duplicates.map(tab => tab.id);
+    await chrome.tabs.remove(tabIds);
+    await updateStats();
+
+    // Update the list if it's shown
+    if (tabsListElement.classList.contains('show')) {
+      await listAllTabs();
+    }
   }
 }
 
-// Load duplicate info when popup opens
-document.addEventListener('DOMContentLoaded', loadDuplicateInfo);
+// Group tabs by domain
+async function groupTabsByDomain() {
+  const tabs = await chrome.tabs.query({ currentWindow: true });
+
+  // Group tabs by domain
+  const domainMap = new Map();
+  tabs.forEach(tab => {
+    const domain = getDomainFromUrl(tab.url);
+    if (!domainMap.has(domain)) {
+      domainMap.set(domain, []);
+    }
+    domainMap.get(domain).push(tab);
+  });
+
+  // Create groups for domains with multiple tabs
+  let groupsCreated = 0;
+  for (const [domain, domainTabs] of domainMap.entries()) {
+    if (domainTabs.length > 1) {
+      try {
+        // Create a new group
+        const tabIds = domainTabs.map(tab => tab.id);
+        const groupId = await chrome.tabs.group({ tabIds });
+
+        // Update group title and color
+        await chrome.tabGroups.update(groupId, {
+          title: domain,
+          color: getRandomColor()
+        });
+
+        groupsCreated++;
+      } catch (error) {
+        console.error(`Error grouping tabs for ${domain}:`, error);
+      }
+    }
+  }
+
+  if (groupsCreated > 0) {
+    alert(`Successfully created ${groupsCreated} tab group(s)!`);
+  } else {
+    alert('No domains with multiple tabs found to group.');
+  }
+}
+
+// Get random color for tab groups
+function getRandomColor() {
+  const colors = ['grey', 'blue', 'red', 'yellow', 'green', 'pink', 'purple', 'cyan', 'orange'];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+// Close all tabs except the active one
+async function closeTabsExceptActive() {
+  const tabs = await chrome.tabs.query({ currentWindow: true });
+  const activeTabs = await chrome.tabs.query({ active: true, currentWindow: true });
+
+  if (activeTabs.length === 0) {
+    alert('No active tab found!');
+    return;
+  }
+
+  const activeTabId = activeTabs[0].id;
+  const tabsToClose = tabs.filter(tab => tab.id !== activeTabId);
+
+  if (tabsToClose.length === 0) {
+    alert('Only one tab is open!');
+    return;
+  }
+
+  const confirmMsg = `Are you sure you want to close ${tabsToClose.length} tab(s)?`;
+  if (confirm(confirmMsg)) {
+    const tabIds = tabsToClose.map(tab => tab.id);
+    await chrome.tabs.remove(tabIds);
+    await updateStats();
+
+    // Clear the list since most tabs are gone
+    if (tabsListElement.classList.contains('show')) {
+      tabsListElement.innerHTML = '';
+      tabsListElement.classList.remove('show');
+    }
+  }
+}
+
+// Initialize when DOM is loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+    if (tabsListElement.classList.contains('show')) {

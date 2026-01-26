@@ -1,91 +1,78 @@
-# Chrome Duplicate Tabs Manager
+# 📌 Smart Tab Manager
 
-A Chrome extension that tracks and manages duplicate tabs in your browser.
+A powerful Chrome Extension (Manifest V3) that helps you efficiently manage open tabs, detect and handle duplicate tabs, and organize your browsing experience.
 
 ## Features
 
-- **Background Service Worker**: Continuously monitors tab creation and updates
-- **Live Duplicate Count**: Real-time tracking of duplicate tabs
-- **Badge Notification**: Shows the number of duplicate tabs on the extension icon
-- **Popup Interface**: View all duplicate URLs and close duplicates with one click
-- **Smart URL Matching**: Normalizes URLs to detect duplicates accurately
+- **Tab Statistics**: View total number of open tabs and duplicate tabs at a glance
+- **List All Tabs**: See all your open tabs with duplicate indicators
+- **Close Duplicate Tabs**: Automatically detect and close duplicate tabs with one click
+- **Group Tabs by Domain**: Organize tabs by their domain names into tab groups
+- **Close Tabs Except Active**: Quickly close all tabs except the one you're currently viewing
 
 ## Installation
 
-### Load Unpacked Extension (for development/testing)
+### Install from Source
 
-1. Clone this repository
+1. Clone this repository or download the source code
+   ```bash
+   git clone https://github.com/ApiCartOps/chrome-duplicate-tabs.git
+   cd chrome-duplicate-tabs
+   ```
+
 2. Open Chrome and navigate to `chrome://extensions/`
-3. Enable "Developer mode" (toggle in the top right)
-4. Click "Load unpacked"
-5. Select the `chrome-duplicate-tabs` directory
-6. The extension is now active!
 
-## How It Works
+3. Enable "Developer mode" by toggling the switch in the top right corner
 
-### Background Service Worker (`background.js`)
+4. Click "Load unpacked" button
 
-The background service worker listens for:
-- **Tab creation events** (`chrome.tabs.onCreated`): Tracks new tabs as they are opened
-- **Tab update events** (`chrome.tabs.onUpdated`): Monitors URL changes in existing tabs
-- **Tab removal events** (`chrome.tabs.onRemoved`): Updates the count when tabs are closed
+5. Select the directory containing the extension files
 
-The service worker maintains:
-- A registry of all open tabs and their URLs
-- A count of how many tabs share each URL
-- A live duplicate count displayed on the extension badge
+6. The Smart Tab Manager extension should now appear in your extensions list
 
-### Duplicate Detection
+## Usage
 
-URLs are normalized before comparison to ensure accurate duplicate detection:
-- Removes URL fragments (hash)
-- Removes trailing slashes
-- Handles standard protocols (http, https)
-- Skips internal URLs (chrome://, about:, etc.)
+1. **Click the extension icon** in your Chrome toolbar to open the popup
 
-### Popup Interface
+2. **View Statistics**: The popup displays:
+   - Total number of open tabs
+   - Number of duplicate tabs detected
 
-Click the extension icon to:
-- View total duplicate count
-- See a list of URLs with duplicates
-- Close duplicate tabs (keeps one copy)
+3. **Use the action buttons**:
+   - **✅ List All Tabs**: Shows all open tabs with duplicate indicators
+   - **✅ Close Duplicate Tabs**: Removes all duplicate tabs (keeps one copy of each)
+   - **✅ Group Tabs by Domain**: Creates tab groups organized by domain
+   - **✅ Close Tabs Except Active One**: Closes all tabs except your current tab
 
-## File Structure
+## Permissions
 
+This extension requires the following permissions:
+- `tabs`: To access and manage your browser tabs
+- `tabGroups`: To create and manage tab groups
+- `storage`: To store counts and state used by the background service worker
+
+## Development
+
+The extension is built with vanilla JavaScript and uses Manifest V3 for modern Chrome extension development.
+
+### File Structure
 ```
 chrome-duplicate-tabs/
-├── manifest.json       # Extension configuration
-├── background.js       # Background service worker
-├── popup.html         # Popup UI
-├── popup.js           # Popup logic
-├── icons/             # Extension icons
-│   ├── icon16.png
-│   ├── icon48.png
-│   └── icon128.png
-└── README.md          # This file
+├── manifest.json       # Extension manifest (V3)
+├── popup.html         # Popup UI structure
+├── popup.css          # Popup styling
+├── popup.js           # Popup functionality
+├── background.js     # Background service worker (optional runtime features)
+└── icons/             # Extension icons
+    ├── icon16.png
+    ├── icon48.png
+    └── icon128.png
 ```
-
-## Testing
-
-1. Load the extension as described above
-2. Open multiple tabs with the same URL (e.g., open google.com twice)
-3. Check the extension badge - it should show the duplicate count
-4. Click the extension icon to see the popup
-5. Use the "Close duplicates" button to close extra tabs
-
-## Technical Details
-
-- **Manifest Version**: 3 (latest Chrome extension standard)
-- **Permissions**: 
-  - `tabs`: Access to tab information and events
-  - `storage`: Store duplicate count data
-- **Service Worker**: Persistent background script for event handling
-- **APIs Used**: 
-  - `chrome.tabs.*`: Tab management
-  - `chrome.action.*`: Badge and icon management
-  - `chrome.storage.*`: Data persistence
-  - `chrome.runtime.*`: Message passing
 
 ## License
 
-MIT
+MIT License
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
