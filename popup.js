@@ -13,9 +13,93 @@ const exportJsonCheckbox = document.getElementById('exportJson');
 const exportScopeAllRadio = document.getElementById('exportScopeAll');
 const exportScopeDuplicatesRadio = document.getElementById('exportScopeDuplicates');
 
+// Track which list is currently shown
+var currentListMode = null;
+
+// Compatibility exec wrapper: adapt callback-style chrome.* APIs and browser.* promises
+if (typeof window.exec === 'undefined') {
+  function makeCall(obj, method) {
+    return function(...args) {
+      // prefer chrome API if available
+      try {
+        if (typeof chrome !== 'undefined' && chrome[obj] && typeof chrome[obj][method] === 'function') {
+          try {
+            const res = chrome[obj][method](...args);
+            if (res && typeof res.then === 'function') return res;
+          } catch (e) {
+            // fallthrough to callback adaptation
+          }
+          return new Promise((resolve) => {
+            try {
+              chrome[obj][method](...args, (r) => resolve(r));
+            } catch (err) {
+              resolve();
+            }
+          });
+        }
+      } catch (e) {}
+
+      // prefer browser.* promise APIs
+      try {
+        if (typeof browser !== 'undefined' && browser[obj] && typeof browser[obj][method] === 'function') {
+          return browser[obj][method](...args);
+        }
+      } catch (e) {}
+
+      // fallback to an existing window.exec implementation (e.g. injected in tests)
+      try {
+        if (window.exec && window.exec[obj] && typeof window.exec[obj][method] === 'function') {
+          return window.exec[obj][method](...args);
+        }
+      } catch (e) {}
+
+      return Promise.resolve();
+    };
+  }
+
+  window.exec = {
+    tabs: {
+      query: makeCall('tabs', 'query'),
+      remove: makeCall('tabs', 'remove'),
+      update: makeCall('tabs', 'update'),
+      group: makeCall('tabs', 'group')
+    },
+    windows: { update: makeCall('windows', 'update') },
+    runtime: { sendMessage: makeCall('runtime', 'sendMessage') },
+    tabGroups: { update: makeCall('tabGroups', 'update') }
+  };
+}
+
+// local reference for files that reference `exec` directly
+var exec = window.exec;
+
+// Update the stats shown in the popup (total tabs and duplicate count)
+async function updateStats() {
+  try {
+    const tabs = await exec.tabs.query({});
+    totalTabsElement.textContent = Array.isArray(tabs) ? tabs.length : 0;
+    const duplicates = (typeof utils !== 'undefined' && utils.findDuplicateTabs)
+      ? utils.findDuplicateTabs(tabs || [])
+      : findDuplicateTabs(tabs || []);
+    duplicateTabsElement.textContent = Array.isArray(duplicates) ? duplicates.length : 0;
+  } catch (e) {
+    console.error('updateStats error', e);
+  }
+}
+
+function supportsTabGroups() {
+  try {
+    return !!(exec && exec.tabs && typeof exec.tabs.group === 'function');
+  } catch (e) {
+    return false;
+  }
+}
+
 // Initialize the popup
 async function init() {
   await updateStats();
+  // wire up button handlers
+  try { setupEventListeners(); } catch (e) {}
   const allTabs = await exec.tabs.query({});
   // Build map of url -> all tabs with that url
   const urlMap = new Map();
@@ -105,8 +189,10 @@ async function init() {
     tabsListElement.appendChild(groupEl);
   }
 
-  totalTabsElement.textContent = tabs.length;
-  duplicateTabsElement.textContent = duplicates.length;
+  // Update stats: total tabs and number of duplicate tabs (excluding first of each group)
+  totalTabsElement.textContent = allTabs.length;
+  const duplicateCount = groups.reduce((acc, [, arr]) => acc + Math.max(0, arr.length - 1), 0);
+  duplicateTabsElement.textContent = duplicateCount;
 }
 
 // Find duplicate tabs by URL
@@ -334,24 +420,29 @@ async function listDuplicates() {
   }
 
   const tabs = await exec.tabs.query({});
-  const duplicates = (typeof utils !== 'undefined' && utils.findDuplicateTabs)
-    ? utils.findDuplicateTabs(tabs)
-    : findDuplicateTabs(tabs);
 
   tabsListElement.innerHTML = '';
   tabsListElement.classList.add('show');
 
-  if (duplicates.length === 0) {
+  if (!tabs || tabs.length === 0) {
     tabsListElement.innerHTML = '<p style="text-align: center; color: #999;">No duplicate tabs found</p>';
     return;
   }
-  // Group duplicates by URL and render groups
-  const groups = new Map();
-  duplicates.forEach(tab => {
+
+  // Build groups by URL including the original tab and duplicates
+  const urlMap = new Map();
+  tabs.forEach(tab => {
     const key = tab.url || 'Unknown';
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(tab);
+    if (!urlMap.has(key)) urlMap.set(key, []);
+    urlMap.get(key).push(tab);
   });
+
+  // Filter to only groups with more than one tab
+  const groups = Array.from(urlMap.entries()).filter(([url, arr]) => arr.length > 1);
+  if (groups.length === 0) {
+    tabsListElement.innerHTML = '<p style="text-align: center; color: #999;">No duplicate tabs found</p>';
+    return;
+  }
 
   for (const [url, groupTabs] of groups.entries()) {
     const groupEl = document.createElement('div');
