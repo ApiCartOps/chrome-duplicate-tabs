@@ -139,4 +139,7 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 # Playwright temporary profile
+# Playwright temporary profiles and web-ext artifacts
 tests/playwright/.tmp-profile-ext/
+tests/playwright/.tmp-profile-firefox/
+tests/playwright/.web-ext-artifacts/
