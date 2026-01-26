@@ -82,7 +82,7 @@ h1 {
 }
 
 .stat-value {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 800;
   color: #333;
   margin-top: 6px;
@@ -124,6 +124,11 @@ h1 {
   height: 42px;
   border-radius: 8px;
   justify-content: center;
+}
+
+.side-menu .btn:hover {
+  transform: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
 .btn-icon {
@@ -179,6 +184,19 @@ h1 {
   gap: 8px;
   align-items: center;
 }
+
+.stats-right .btn {
+  width: auto;
+  padding: 6px 10px;
+}
+
+.content header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stats { align-items: center; }
 
 .export-controls {
   display: flex;
