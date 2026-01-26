@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 800 480">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0" stop-color="#667eea"/>
+      <stop offset="1" stop-color="#764ba2"/>
+    </linearGradient>
+    <style>
+      .bg { fill: url(#g); }
+      .card { fill: #fff; stroke: #e6e6e6; stroke-width: 1; }
+      .title { font: 28px 'Segoe UI', sans-serif; fill: #333; font-weight:700 }
+      .stat { font: 14px 'Segoe UI', sans-serif; fill: #666 }
+      .tab { font: 13px 'Segoe UI', sans-serif; fill: #222 }
+      .badge { fill: #f5576c; fill-opacity:1; color: white }
+    </style>
+  </defs>
+  <rect class="bg" width="800" height="480" rx="8" ry="8"/>
+  <g transform="translate(40,40)">
+    <rect class="card" width="720" height="400" rx="10" ry="10"/>
+    <text class="title" x="28" y="44">📌 Smart Tab Manager</text>
+    <g transform="translate(28,70)">
+      <rect x="0" y="0" width="220" height="80" rx="8" ry="8" fill="#f9f9fb" stroke="#eaeaf0"/>
+      <text class="stat" x="16" y="28">Total Tabs:</text>
+      <text class="title" x="16" y="56">3</text>
+      <rect x="240" y="0" width="220" height="80" rx="8" ry="8" fill="#f9f9fb" stroke="#eaeaf0"/>
+      <text class="stat" x="256" y="28">Duplicate Tabs:</text>
+      <text class="title" x="256" y="56">1</text>
+    </g>
+    <g transform="translate(28,170)">
+      <!-- action buttons -->
+      <rect x="0" y="0" width="640" height="44" rx="6" ry="6" fill="#ffffff00" />
+      <g transform="translate(0,0)">
+        <rect x="0" y="0" width="160" height="36" rx="6" ry="6" fill="#667eea"/>
+        <text class="tab" x="20" y="22" fill="#fff">✅ List All Tabs</text>
+        <rect x="180" y="0" width="160" height="36" rx="6" ry="6" fill="#6b7280"/>
+        <text class="tab" x="200" y="22" fill="#fff">🔎 List Duplicates</text>
+        <rect x="360" y="0" width="160" height="36" rx="6" ry="6" fill="#f093fb"/>
+        <text class="tab" x="380" y="22" fill="#fff">📤 Export List</text>
+      </g>
+    </g>
+    <g transform="translate(28,230)">
+      <!-- sample tab items -->
+      <rect x="0" y="0" width="640" height="132" rx="6" ry="6" fill="#fafafa" stroke="#eee"/>
+      <g transform="translate(12,12)">
+        <g transform="translate(0,0)">
+          <circle cx="12" cy="12" r="12" fill="#4facfe" />
+          <text class="tab" x="36" y="16">Example Copy <tspan font-size="10" fill="#fff" /></text>
+          <rect x="220" y="2" width="56" height="18" rx="8" ry="8" fill="#f5576c"/>
+          <text x="230" y="15" font-family="Segoe UI" font-size="10" fill="#fff">DUPLICATE</text>
+          <text class="stat" x="36" y="34">https://example.com</text>
+        </g>
+        <g transform="translate(0,52)">
+          <circle cx="12" cy="12" r="12" fill="#a78bfa" />
+          <text class="tab" x="36" y="16">Other</text>
+          <text class="stat" x="36" y="34">https://other.com</text>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

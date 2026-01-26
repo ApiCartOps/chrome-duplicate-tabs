@@ -1,11 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "Chrome Duplicate Tabs Manager",
+  "name": "Smart Tab Manager",
   "version": "1.0.0",
-  "description": "Manage and track duplicate tabs in Chrome",
+  "description": "Efficiently manage open tabs, detect and handle duplicate tabs",
   "permissions": [
     "tabs",
-    "storage"
+    "storage",
+    "tabGroups"
   ],
   "background": {
     "service_worker": "background.js"
@@ -13,14 +14,21 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
+      "16": "icons/icon16.svg",
+      "48": "icons/icon48.svg",
+      "128": "icons/icon128.svg"
     }
   },
   "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "icons/icon16.svg",
+    "48": "icons/icon48.svg",
+    "128": "icons/icon128.svg"
+  }
+  ,
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "wahyder@gmail.com",
+      "strict_min_version": "109.0"
+    }
   }
 }

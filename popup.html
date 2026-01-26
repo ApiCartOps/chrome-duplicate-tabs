@@ -1,127 +1,49 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Duplicate Tabs Manager</title>
-  <style>
-    body {
-      width: 350px;
-      padding: 15px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      margin: 0;
-    }
-    
-    h1 {
-      font-size: 18px;
-      margin: 0 0 15px 0;
-      color: #333;
-    }
-    
-    .stats {
-      background: #f5f5f5;
-      padding: 12px;
-      border-radius: 6px;
-      margin-bottom: 15px;
-    }
-    
-    .stat-item {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-    
-    .stat-item:last-child {
-      margin-bottom: 0;
-    }
-    
-    .stat-label {
-      color: #666;
-      font-weight: 500;
-    }
-    
-    .stat-value {
-      color: #333;
-      font-weight: bold;
-    }
-    
-    .duplicate-list {
-      max-height: 300px;
-      overflow-y: auto;
-    }
-    
-    .duplicate-item {
-      border: 1px solid #e0e0e0;
-      border-radius: 4px;
-      padding: 10px;
-      margin-bottom: 8px;
-      background: white;
-    }
-    
-    .duplicate-url {
-      font-size: 12px;
-      color: #666;
-      word-break: break-all;
-      margin-bottom: 8px;
-    }
-    
-    .duplicate-info {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .duplicate-count {
-      font-size: 14px;
-      color: #ff5722;
-      font-weight: bold;
-    }
-    
-    .close-btn {
-      background: #ff5722;
-      color: white;
-      border: none;
-      padding: 5px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-    }
-    
-    .close-btn:hover {
-      background: #e64a19;
-    }
-    
-    .no-duplicates {
-      text-align: center;
-      padding: 20px;
-      color: #4caf50;
-      font-weight: 500;
-    }
-    
-    .loading {
-      text-align: center;
-      padding: 20px;
-      color: #999;
-    }
-  </style>
-</head>
-<body>
-  <h1>🔄 Duplicate Tabs Manager</h1>
-  
-  <div class="stats">
-    <div class="stat-item">
-      <span class="stat-label">Total Duplicates:</span>
-      <span class="stat-value" id="totalDuplicates">-</span>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Tab Manager</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>📌 Smart Tab Manager</h1>
+      </header>
+
+      <div class="stats">
+        <div class="stat-item">
+          <span class="stat-label">Total Tabs:</span>
+          <span class="stat-value" id="totalTabs">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Duplicate Tabs:</span>
+          <span class="stat-value" id="duplicateTabs">0</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="listAllTabs" class="btn btn-primary">✅ List All Tabs</button>
+        <button id="listDuplicateTabs" class="btn btn-secondary">🔎 List Duplicates</button>
+        <button id="exportListBtn" class="btn btn-outline">📤 Export List</button>
+        <div class="export-controls">
+          <label><input type="checkbox" id="exportCsv" checked> CSV</label>
+          <label><input type="checkbox" id="exportJson"> JSON</label>
+          <div class="export-scope">
+            <label><input type="radio" name="exportScope" id="exportScopeAll" value="all" checked> Export All</label>
+            <label><input type="radio" name="exportScope" id="exportScopeDuplicates" value="duplicates"> Export Duplicates</label>
+          </div>
+        </div>
+        <button id="closeDuplicateTabs" class="btn btn-danger">✅ Close Duplicate Tabs</button>
+        <button id="groupTabsByDomain" class="btn btn-info">✅ Group Tabs by Domain</button>
+        <button id="closeTabsExceptActive" class="btn btn-warning">✅ Close Tabs Except Active One</button>
+      </div>
+
+      <div id="tabsList" class="tabs-list"></div>
     </div>
-    <div class="stat-item">
-      <span class="stat-label">Unique URLs with Duplicates:</span>
-      <span class="stat-value" id="uniqueUrls">-</span>
-    </div>
-  </div>
-  
-  <div id="content">
-    <div class="loading">Loading...</div>
-  </div>
-  
-  <script src="popup.js"></script>
-</body>
+
+    <script src="utils.js"></script>
+    <script src="popup.js"></script>
+  </body>
 </html>
