@@ -82,6 +82,16 @@ We added Playwright coverage for the popup UI including export behavior (`tests/
 - Export filenames are timestamped like `tabs-export-YYYYMMDD_hhmmss.csv` or `.json`.
 - The popup UI shows favicons (when available) and a small `status` badge next to tab titles.
 - If you want a different export filename pattern or additional fields, open an issue or request the change.
+
+## Screenshots
+
+Popup (All Tabs view):
+
+![Popup - All Tabs](docs/screenshots/popup-all.svg)
+
+Export preview (CSV/JSON):
+
+![Export Preview](docs/screenshots/popup-export.svg)
 ```
 
 ## License
