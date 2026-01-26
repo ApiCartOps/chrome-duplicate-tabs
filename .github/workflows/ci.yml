@@ -39,4 +39,7 @@ jobs:
         env:
           CI: true
         run: |
+          # run the export-focused test first to surface download issues quickly
+          npx playwright test tests/playwright/export.spec.js --project=chromium,firefox --reporter=list || true
+          # then run the full Playwright suite
           npx playwright test --project=chromium,firefox --reporter=list
