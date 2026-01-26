@@ -10,6 +10,7 @@ beforeEach(() => {
       <div id="tabsList"></div>
       <button id="listAllTabs"></button>
       <button id="listDuplicateTabs"></button>
+      <button id="exportListBtn"></button>
       <button id="closeDuplicateTabs"></button>
       <button id="groupTabsByDomain"></button>
       <button id="closeTabsExceptActive"></button>

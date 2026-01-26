@@ -7,6 +7,7 @@ const listDuplicateTabsBtn = document.getElementById('listDuplicateTabs');
 const closeDuplicateTabsBtn = document.getElementById('closeDuplicateTabs');
 const groupTabsByDomainBtn = document.getElementById('groupTabsByDomain');
 const closeTabsExceptActiveBtn = document.getElementById('closeTabsExceptActive');
+const exportListBtn = document.getElementById('exportListBtn');
 
 // Initialize the popup
 async function init() {
@@ -138,9 +139,51 @@ function getDomainFromUrl(url) {
 function setupEventListeners() {
   listAllTabsBtn.addEventListener('click', listAllTabs);
   listDuplicateTabsBtn.addEventListener('click', listDuplicates);
+  if (exportListBtn) exportListBtn.addEventListener('click', exportList);
   closeDuplicateTabsBtn.addEventListener('click', closeDuplicateTabs);
   groupTabsByDomainBtn.addEventListener('click', groupTabsByDomain);
   closeTabsExceptActiveBtn.addEventListener('click', closeTabsExceptActive);
+}
+
+// Export currently shown list as CSV
+async function exportList() {
+  let tabs = [];
+  if (currentListMode === 'duplicates') {
+    const allTabs = await exec.tabs.query({});
+    tabs = (typeof utils !== 'undefined' && utils.findDuplicateTabs) ? utils.findDuplicateTabs(allTabs) : findDuplicateTabs(allTabs);
+  } else if (currentListMode === 'all') {
+    tabs = await exec.tabs.query({});
+  } else {
+    // if nothing shown, export all by default
+    tabs = await exec.tabs.query({});
+  }
+
+  if (!tabs || tabs.length === 0) {
+    alert('No tabs to export');
+    return;
+  }
+
+  const csv = tabsToCsv(tabs);
+  triggerDownload(csv, 'tabs-export.csv', 'text/csv');
+}
+
+function tabsToCsv(tabs) {
+  const header = ['id', 'title', 'url', 'windowId'];
+  const rows = tabs.map(t => [t.id, (t.title || '').replace(/"/g, '""'), t.url, t.windowId || ''].map(field => `"${String(field)}"`).join(','));
+  return `${header.join(',')}\n${rows.join('\n')}`;
+
+}
+
+function triggerDownload(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType || 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename || 'download.txt';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 // List all tabs
