@@ -10,5 +10,9 @@ module.exports = defineConfig({
     headless: true,
     viewport: { width: 1280, height: 720 }
   },
+  projects: [
+    { name: 'chromium', use: { browserName: 'chromium' } },
+    { name: 'firefox', use: { browserName: 'firefox' } }
+  ],
   reporter: [['list']]
 });

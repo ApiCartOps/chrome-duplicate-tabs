@@ -11,11 +11,85 @@ const closeTabsExceptActiveBtn = document.getElementById('closeTabsExceptActive'
 async function init() {
   await updateStats();
   setupEventListeners();
+  // Disable group-by-domain if tabGroups API is not supported
+  if (!supportsTabGroups()) {
+    groupTabsByDomainBtn.disabled = true;
+    groupTabsByDomainBtn.title = 'Tab groups not supported in this browser';
+  } else {
+    groupTabsByDomainBtn.disabled = false;
+    groupTabsByDomainBtn.title = '';
+  }
 }
+
+function supportsTabGroups() {
+  if (typeof browser !== 'undefined' && browser.tabGroups && browser.tabGroups.update) return true;
+  if (typeof chrome !== 'undefined' && chrome.tabGroups && chrome.tabGroups.update) return true;
+  return false;
+}
+
+// Compatibility wrapper: prefer `browser` (polyfill) but fall back to promisified `chrome` APIs
+const exec = {
+  tabs: {
+    query: (q) => {
+      if (typeof browser !== 'undefined') return browser.tabs.query(q);
+      if (typeof chrome !== 'undefined' && typeof chrome.tabs.query === 'function' && chrome.tabs.query.length >= 2) {
+        return new Promise((res) => chrome.tabs.query(q, res));
+      }
+      const maybe = chrome.tabs.query(q);
+      if (maybe && typeof maybe.then === 'function') return maybe;
+      return new Promise((res) => chrome.tabs.query(q, res));
+    },
+    update: (id, opts) => {
+      if (typeof browser !== 'undefined') return browser.tabs.update(id, opts);
+      const maybe = chrome.tabs.update(id, opts);
+      if (maybe && typeof maybe.then === 'function') return maybe;
+      return new Promise((res) => chrome.tabs.update(id, opts, res));
+    },
+    remove: (ids) => {
+      if (typeof browser !== 'undefined') return browser.tabs.remove(ids);
+      const maybe = chrome.tabs.remove(ids);
+      if (maybe && typeof maybe.then === 'function') return maybe;
+      return new Promise((res) => chrome.tabs.remove(ids, res));
+    },
+    group: (opts) => {
+      if (typeof browser !== 'undefined') return browser.tabs.group(opts);
+      const maybe = chrome.tabs.group(opts);
+      if (maybe && typeof maybe.then === 'function') return maybe;
+      return new Promise((res) => chrome.tabs.group(opts, res));
+    }
+  },
+  windows: {
+    update: (id, opts) => {
+      if (typeof browser !== 'undefined') return browser.windows.update(id, opts);
+      const maybe = chrome.windows.update(id, opts);
+      if (maybe && typeof maybe.then === 'function') return maybe;
+      return new Promise((res) => chrome.windows.update(id, opts, res));
+    }
+  },
+  runtime: {
+    sendMessage: (msg) => {
+      if (typeof browser !== 'undefined') return browser.runtime.sendMessage(msg);
+      const maybe = chrome.runtime.sendMessage(msg);
+      if (maybe && typeof maybe.then === 'function') return maybe;
+      return new Promise((res) => chrome.runtime.sendMessage(msg, res));
+    }
+  },
+  tabGroups: {
+    update: (groupId, opts) => {
+      if (typeof browser !== 'undefined' && browser.tabGroups && browser.tabGroups.update) return browser.tabGroups.update(groupId, opts);
+      if (typeof chrome !== 'undefined' && chrome.tabGroups && chrome.tabGroups.update) {
+        const maybe = chrome.tabGroups.update(groupId, opts);
+        if (maybe && typeof maybe.then === 'function') return maybe;
+        return new Promise((res) => chrome.tabGroups.update(groupId, opts, res));
+      }
+      return Promise.reject(new Error('tabGroups API not supported'));
+    }
+  }
+};
 
 // Update tab statistics
 async function updateStats() {
-  const tabs = await chrome.tabs.query({});
+  const tabs = await exec.tabs.query({});
   const duplicates = (typeof utils !== 'undefined' && utils.findDuplicateTabs)
     ? utils.findDuplicateTabs(tabs)
     : findDuplicateTabs(tabs);
@@ -66,7 +140,7 @@ function setupEventListeners() {
 
 // List all tabs
 async function listAllTabs() {
-  const tabs = await chrome.tabs.query({});
+  const tabs = await exec.tabs.query({});
   const duplicateUrls = new Set();
 
   // Find duplicate URLs
@@ -107,8 +181,8 @@ async function listAllTabs() {
 
     // Make tab clickable to switch to it
     tabItem.addEventListener('click', () => {
-      chrome.tabs.update(tab.id, { active: true });
-      chrome.windows.update(tab.windowId, { focused: true });
+      exec.tabs.update(tab.id, { active: true }).catch(() => {});
+      exec.windows.update(tab.windowId, { focused: true }).catch(() => {});
     });
 
     tabsListElement.appendChild(tabItem);
@@ -117,7 +191,7 @@ async function listAllTabs() {
 
 // Close duplicate tabs
 async function closeDuplicateTabs() {
-  const tabs = await chrome.tabs.query({});
+  const tabs = await exec.tabs.query({});
   const duplicates = findDuplicateTabs(tabs);
 
   if (duplicates.length === 0) {
@@ -128,12 +202,12 @@ async function closeDuplicateTabs() {
   const confirmMsg = `Are you sure you want to close ${duplicates.length} duplicate tab(s)?`;
   if (confirm(confirmMsg)) {
     const tabIds = duplicates.map(tab => tab.id);
-    await chrome.tabs.remove(tabIds);
+    await exec.tabs.remove(tabIds).catch(() => {});
     await updateStats();
 
     // Tell background to refresh its state so the badge updates reliably
     try {
-      chrome.runtime.sendMessage({ action: 'refresh' }).catch(() => {});
+      await exec.runtime.sendMessage({ action: 'refresh' }).catch(() => {});
     } catch (e) {}
 
     // Update the list if it's shown
@@ -145,7 +219,11 @@ async function closeDuplicateTabs() {
 
 // Group tabs by domain
 async function groupTabsByDomain() {
-  const tabs = await chrome.tabs.query({ currentWindow: true });
+  if (!supportsTabGroups()) {
+    alert('Tab groups are not supported in this browser.');
+    return;
+  }
+  const tabs = await exec.tabs.query({ currentWindow: true });
 
   // Group tabs by domain
   const domainMap = new Map();
@@ -164,13 +242,17 @@ async function groupTabsByDomain() {
       try {
         // Create a new group
         const tabIds = domainTabs.map(tab => tab.id);
-        const groupId = await chrome.tabs.group({ tabIds });
-
-        // Update group title and color
-        await chrome.tabGroups.update(groupId, {
-          title: domain,
-          color: (typeof utils !== 'undefined' && utils.getRandomColor) ? utils.getRandomColor() : getRandomColor()
-        });
+        let groupId;
+        try {
+          groupId = await exec.tabs.group({ tabIds });
+          await exec.tabGroups.update(groupId, {
+            title: domain,
+            color: (typeof utils !== 'undefined' && utils.getRandomColor) ? utils.getRandomColor() : getRandomColor()
+          }).catch(() => {});
+          groupsCreated++;
+        } catch (error) {
+          console.error(`Error grouping tabs for ${domain}:`, error);
+        }
 
         groupsCreated++;
       } catch (error) {
@@ -197,8 +279,8 @@ function getRandomColor() {
 
 // Close all tabs except the active one
 async function closeTabsExceptActive() {
-  const tabs = await chrome.tabs.query({ currentWindow: true });
-  const activeTabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tabs = await exec.tabs.query({ currentWindow: true });
+  const activeTabs = await exec.tabs.query({ active: true, currentWindow: true });
 
   if (activeTabs.length === 0) {
     alert('No active tab found!');
@@ -216,11 +298,11 @@ async function closeTabsExceptActive() {
   const confirmMsg = `Are you sure you want to close ${tabsToClose.length} tab(s)?`;
   if (confirm(confirmMsg)) {
     const tabIds = tabsToClose.map(tab => tab.id);
-    await chrome.tabs.remove(tabIds);
+    await exec.tabs.remove(tabIds).catch(() => {});
     await updateStats();
 
       try {
-        chrome.runtime.sendMessage({ action: 'refresh' }).catch(() => {});
+        await exec.runtime.sendMessage({ action: 'refresh' }).catch(() => {});
       } catch (e) {}
 
     // Clear the list since most tabs are gone
@@ -236,4 +318,11 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {
   init();
+}
+
+// Export internals for unit tests (CommonJS)
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+  module.exports = module.exports || {};
+  module.exports.exec = exec;
+  module.exports.supportsTabGroups = supportsTabGroups;
 }

@@ -29,6 +29,13 @@ async function initializeTabs() {
     console.log(`Initialized: ${duplicateCount} duplicate tabs found`);
   } catch (error) {
     console.error('Error initializing tabs:', error);
+    // Load webextension polyfill to provide `browser` API in all browsers
+    try {
+      importScripts('vendor/browser-polyfill.js');
+    } catch (e) {
+      // importScripts may not be available in some test runners
+    }
+
   }
 }
 
@@ -36,7 +43,7 @@ async function initializeTabs() {
  * Add a tab to the registry
  */
 function addTab(tabId, url) {
-  // Normalize URL (remove trailing slashes, fragments)
+        const tabs = await browser.tabs.query({});
   const normalizedUrl = normalizeUrl(url);
   
   // Update tab registry
@@ -67,7 +74,7 @@ function removeTab(tabId) {
   } else {
     urlCounts.set(url, currentCount - 1);
   }
-  
+      browser.storage.local.set({
   // Update duplicate count
   recalculateDuplicates();
 }
@@ -76,10 +83,10 @@ function removeTab(tabId) {
  * Update a tab's URL in the registry
  */
 function updateTab(tabId, newUrl) {
-  // First remove the old URL
-  removeTab(tabId);
+        browser.action.setBadgeText({ text: duplicateCount.toString() }).catch(() => {});
+        browser.action.setBadgeBackgroundColor({ color: '#FF0000' }).catch(() => {});
   
-  // Then add with new URL
+        browser.action.setBadgeText({ text: '' }).catch(() => {});
   if (newUrl) {
     addTab(tabId, newUrl);
   }
@@ -99,7 +106,7 @@ function normalizeUrl(url) {
       return url;
     }
     
-    // Parse and normalize the URL
+    browser.tabs.onCreated.addListener((tab) => {
     const urlObj = new URL(url);
     
     // Remove hash/fragment
@@ -107,7 +114,7 @@ function normalizeUrl(url) {
     
     // Remove trailing slash from pathname
     if (urlObj.pathname.endsWith('/') && urlObj.pathname.length > 1) {
-      urlObj.pathname = urlObj.pathname.slice(0, -1);
+    browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
     
     return urlObj.toString();
@@ -115,21 +122,19 @@ function normalizeUrl(url) {
     // If URL parsing fails, return as-is
     return url;
   }
-}
+    browser.tabs.onRemoved.addListener((tabId, removeInfo) => {
 
 /**
  * Recalculate the total number of duplicate tabs
  */
 function recalculateDuplicates() {
-  duplicateCount = 0;
+    browser.runtime.onMessage.addListener((request, sender) => {
   
-  // For each URL that appears more than once, count the extras as duplicates
-  for (const [url, count] of urlCounts.entries()) {
+        return getDuplicateInfo();
     if (count > 1) {
       duplicateCount += (count - 1);
     }
-  }
-  
+        return initializeTabs().then(() => ({ ok: true })).catch(err => ({ ok: false, error: err && err.message }));
   updateBadge();
   
   // Store the count for popup access
@@ -147,14 +152,7 @@ function updateBadge() {
   if (duplicateCount > 0) {
     chrome.action.setBadgeText({ text: duplicateCount.toString() });
     chrome.action.setBadgeBackgroundColor({ color: '#FF0000' });
-  } else {
-    chrome.action.setBadgeText({ text: '' });
-  }
-}
-
-/**
- * Get duplicate information for the popup
- */
+          return browser.tabs.remove(tabsToClose).then(() => ({ closed: tabsToClose.length })).catch(err => ({ closed: 0, error: err && err.message }));
 function getDuplicateInfo() {
   const duplicates = [];
   

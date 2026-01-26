@@ -76,3 +76,16 @@ MIT License
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Cross-browser compatibility
+
+- This extension uses the `webextension-polyfill` (included under `vendor/browser-polyfill.js`) and a small compatibility wrapper in `popup.js` so it can run on Chromium-based browsers and Firefox where possible.
+- Firefox support: a `applications.gecko` entry has been added to `manifest.json` to provide an installable ID. Note that some Chrome-only APIs (for example `tabGroups`) may not be available in Firefox — those operations are guarded and will fail gracefully.
+- To build for Firefox, consider using `web-ext` to lint and pack the extension:
+
+```bash
+npm install --global web-ext
+web-ext build --source-dir .
+```
+
+If you want automated cross-browser packaging, I can add packaging scripts next.
