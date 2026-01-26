@@ -109,7 +109,9 @@ test.describe('Popup UI', () => {
         tabGroups: { update: () => Promise.resolve() }
       };
 
+      // Avoid modal dialogs blocking tests
       window.alert = () => {};
+      window.confirm = () => true;
     });
 
     const page = await context.newPage();

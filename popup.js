@@ -404,37 +404,47 @@ async function groupTabsByDomain() {
     }
     domainMap.get(domain).push(tab);
   });
+  // Determine how many groups would be created (domains with >1 tab)
+  let groupsToCreate = 0;
+  for (const domainTabs of domainMap.values()) {
+    if (domainTabs.length > 1) groupsToCreate++;
+  }
+
+  if (groupsToCreate === 0) {
+    alert('No domains with multiple tabs found to group.');
+    return;
+  }
+
+  // Confirm with user before creating groups
+  const confirmMsg = `This will create ${groupsToCreate} tab group(s). Proceed?`;
+  if (!confirm(confirmMsg)) return;
 
   // Create groups for domains with multiple tabs
   let groupsCreated = 0;
   for (const [domain, domainTabs] of domainMap.entries()) {
-    if (domainTabs.length > 1) {
+    if (domainTabs.length <= 1) continue;
+    try {
+      const tabIds = domainTabs.map(tab => tab.id);
+      let groupId;
       try {
-        // Create a new group
-        const tabIds = domainTabs.map(tab => tab.id);
-        let groupId;
-        try {
-          groupId = await exec.tabs.group({ tabIds });
-          await exec.tabGroups.update(groupId, {
-            title: domain,
-            color: (typeof utils !== 'undefined' && utils.getRandomColor) ? utils.getRandomColor() : getRandomColor()
-          }).catch(() => {});
-          groupsCreated++;
-        } catch (error) {
-          console.error(`Error grouping tabs for ${domain}:`, error);
-        }
-
+        groupId = await exec.tabs.group({ tabIds });
+        await exec.tabGroups.update(groupId, {
+          title: domain,
+          color: (typeof utils !== 'undefined' && utils.getRandomColor) ? utils.getRandomColor() : getRandomColor()
+        }).catch(() => {});
         groupsCreated++;
       } catch (error) {
         console.error(`Error grouping tabs for ${domain}:`, error);
       }
+    } catch (error) {
+      console.error(`Error grouping tabs for ${domain}:`, error);
     }
   }
 
   if (groupsCreated > 0) {
     alert(`Successfully created ${groupsCreated} tab group(s)!`);
   } else {
-    alert('No domains with multiple tabs found to group.');
+    alert('No groups were created due to errors.');
   }
 }
 
