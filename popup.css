@@ -36,6 +36,7 @@ body {
   /* constrain overall popup height so internal content scrolls instead of whole popup */
   max-height: 640px;
   box-shadow: 0 10px 30px rgba(18, 22, 33, 0.18);
+  position: relative;
 }
 
 /* Fullscreen variant used when opened as a tab or toggled in-page */
@@ -226,6 +227,25 @@ h1 {
   width: auto;
   padding: 6px 10px;
 }
+
+/* Move the toggle full-view button to the top-right corner of the popup */
+#toggleFullBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 40px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(18,22,33,0.08);
+  background: rgba(255,255,255,0.9);
+  z-index: 60;
+}
+
+#toggleFullBtn:hover { transform: none; box-shadow: 0 4px 10px rgba(0,0,0,0.12); }
 
 .content header {
   display: flex;
