@@ -8,7 +8,6 @@ const closeDuplicateTabsBtn = document.getElementById('closeDuplicateTabs');
 const groupTabsByDomainBtn = document.getElementById('groupTabsByDomain');
 const closeTabsExceptActiveBtn = document.getElementById('closeTabsExceptActive');
 const exportListBtn = document.getElementById('exportListBtn');
-const exportQuickBtn = document.getElementById('exportQuickBtn');
 const exportCsvCheckbox = document.getElementById('exportCsv');
 const exportJsonCheckbox = document.getElementById('exportJson');
 const exportScopeAllRadio = document.getElementById('exportScopeAll');
@@ -244,7 +243,6 @@ function setupEventListeners() {
   if (listAllTabsBtn) listAllTabsBtn.addEventListener('click', listAllTabs);
   if (listDuplicateTabsBtn) listDuplicateTabsBtn.addEventListener('click', listDuplicates);
   if (exportListBtn) exportListBtn.addEventListener('click', exportList);
-  if (exportQuickBtn) exportQuickBtn.addEventListener('click', exportList);
   if (closeDuplicateTabsBtn) closeDuplicateTabsBtn.addEventListener('click', closeDuplicateTabs);
   if (groupTabsByDomainBtn) groupTabsByDomainBtn.addEventListener('click', groupTabsByDomain);
   if (closeTabsExceptActiveBtn) closeTabsExceptActiveBtn.addEventListener('click', closeTabsExceptActive);
