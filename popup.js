@@ -8,7 +8,10 @@ const closeDuplicateTabsBtn = document.getElementById('closeDuplicateTabs');
 const groupTabsByDomainBtn = document.getElementById('groupTabsByDomain');
 const closeTabsExceptActiveBtn = document.getElementById('closeTabsExceptActive');
 const exportListBtn = document.getElementById('exportListBtn');
-const exportFormatSelect = document.getElementById('exportFormat');
+const exportCsvCheckbox = document.getElementById('exportCsv');
+const exportJsonCheckbox = document.getElementById('exportJson');
+const exportScopeAllRadio = document.getElementById('exportScopeAll');
+const exportScopeDuplicatesRadio = document.getElementById('exportScopeDuplicates');
 
 // Initialize the popup
 async function init() {
@@ -146,16 +149,15 @@ function setupEventListeners() {
   closeTabsExceptActiveBtn.addEventListener('click', closeTabsExceptActive);
 }
 
-// Export currently shown list as CSV
+// Export currently shown list as CSV/JSON
 async function exportList() {
+  // decide scope: 'duplicates' or 'all'
+  const scope = (exportScopeDuplicatesRadio && exportScopeDuplicatesRadio.checked) ? 'duplicates' : 'all';
   let tabs = [];
-  if (currentListMode === 'duplicates') {
+  if (scope === 'duplicates') {
     const allTabs = await exec.tabs.query({});
     tabs = (typeof utils !== 'undefined' && utils.findDuplicateTabs) ? utils.findDuplicateTabs(allTabs) : findDuplicateTabs(allTabs);
-  } else if (currentListMode === 'all') {
-    tabs = await exec.tabs.query({});
   } else {
-    // if nothing shown, export all by default
     tabs = await exec.tabs.query({});
   }
 
@@ -164,8 +166,6 @@ async function exportList() {
     return;
   }
 
-  const format = (exportFormatSelect && exportFormatSelect.value) ? exportFormatSelect.value : 'csv';
-  const timestamp = getTimestamp();
   // Normalize tabs to include extra fields so JSON always has same shape
   const normalized = tabs.map(t => ({
     id: t.id,
@@ -176,12 +176,23 @@ async function exportList() {
     status: t.status || ''
   }));
 
-  if (format === 'json') {
-    const content = JSON.stringify(normalized, null, 2);
-    triggerDownload(content, `tabs-export-${timestamp}.json`, 'application/json');
-  } else {
+  const shouldCsv = exportCsvCheckbox && exportCsvCheckbox.checked;
+  const shouldJson = exportJsonCheckbox && exportJsonCheckbox.checked;
+  const timestamp = getTimestamp();
+
+  if (!shouldCsv && !shouldJson) {
+    alert('Please select at least one export format (CSV or JSON)');
+    return;
+  }
+
+  // Trigger downloads for selected formats
+  if (shouldCsv) {
     const csv = tabsToCsv(normalized);
-    triggerDownload(csv, `tabs-export-${timestamp}.csv`, 'text/csv');
+    triggerDownload(csv, `tabs-export-${scope}-${timestamp}.csv`, 'text/csv');
+  }
+  if (shouldJson) {
+    const content = JSON.stringify(normalized, null, 2);
+    triggerDownload(content, `tabs-export-${scope}-${timestamp}.json`, 'application/json');
   }
 }
 
@@ -199,7 +210,6 @@ function tabsToCsv(tabs) {
     return fields.map(field => `"${String(field)}"`).join(',');
   });
   return `${header.join(',')}\n${rows.join('\n')}`;
-
 }
 
 function getTimestamp() {

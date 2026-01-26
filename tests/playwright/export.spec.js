@@ -44,7 +44,9 @@ test.describe('export list downloads', () => {
     await page.goto(url);
 
     // Ensure CSV selected
-    await page.selectOption('#exportFormat', 'csv');
+    await page.check('#exportCsv');
+    await page.uncheck('#exportJson');
+    await page.check('#exportScopeAll');
 
     const [download] = await Promise.all([
       page.waitForEvent('download'),
@@ -93,7 +95,9 @@ test.describe('export list downloads', () => {
     await page.goto(url);
 
     // Select JSON
-    await page.selectOption('#exportFormat', 'json');
+    await page.uncheck('#exportCsv');
+    await page.check('#exportJson');
+    await page.check('#exportScopeAll');
 
     const [download] = await Promise.all([
       page.waitForEvent('download'),

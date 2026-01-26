@@ -27,10 +27,14 @@
         <button id="listAllTabs" class="btn btn-primary">✅ List All Tabs</button>
         <button id="listDuplicateTabs" class="btn btn-secondary">🔎 List Duplicates</button>
         <button id="exportListBtn" class="btn btn-outline">📤 Export List</button>
-        <select id="exportFormat" class="btn btn-select" title="Export format">
-          <option value="csv">CSV</option>
-          <option value="json">JSON</option>
-        </select>
+        <div class="export-controls">
+          <label><input type="checkbox" id="exportCsv" checked> CSV</label>
+          <label><input type="checkbox" id="exportJson"> JSON</label>
+          <div class="export-scope">
+            <label><input type="radio" name="exportScope" id="exportScopeAll" value="all" checked> Export All</label>
+            <label><input type="radio" name="exportScope" id="exportScopeDuplicates" value="duplicates"> Export Duplicates</label>
+          </div>
+        </div>
         <button id="closeDuplicateTabs" class="btn btn-danger">✅ Close Duplicate Tabs</button>
         <button id="groupTabsByDomain" class="btn btn-info">✅ Group Tabs by Domain</button>
         <button id="closeTabsExceptActive" class="btn btn-warning">✅ Close Tabs Except Active One</button>

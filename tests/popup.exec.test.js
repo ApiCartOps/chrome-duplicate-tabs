@@ -11,10 +11,10 @@ beforeEach(() => {
       <button id="listAllTabs"></button>
       <button id="listDuplicateTabs"></button>
       <button id="exportListBtn"></button>
-      <select id="exportFormat">
-        <option value="csv">CSV</option>
-        <option value="json">JSON</option>
-      </select>
+      <input type="checkbox" id="exportCsv" checked />
+      <input type="checkbox" id="exportJson" />
+      <input type="radio" name="exportScope" id="exportScopeAll" value="all" checked />
+      <input type="radio" name="exportScope" id="exportScopeDuplicates" value="duplicates" />
       <button id="closeDuplicateTabs"></button>
       <button id="groupTabsByDomain"></button>
       <button id="closeTabsExceptActive"></button>
