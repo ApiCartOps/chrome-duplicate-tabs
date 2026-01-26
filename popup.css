@@ -135,6 +135,70 @@ h1 {
   cursor: pointer;
 }
 
+/* Actions on the right side of each tab item */
+.tab-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-close {
+  background: transparent;
+  border: 1px solid #ddd;
+  color: #666;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-close:hover {
+  background: #ffecec;
+  color: #d9534f;
+  border-color: #f1c0c0;
+}
+
+/* Duplicate group container */
+.duplicate-group {
+  margin-bottom: 12px;
+  border: 1px dashed #e5e5e5;
+  padding: 8px;
+  border-radius: 6px;
+  background: #fbfbfb;
+}
+
+.group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.group-header strong {
+  font-size: 13px;
+  color: #333;
+}
+
+.group-count {
+  font-size: 12px;
+  color: #666;
+  margin-left: 6px;
+}
+
+.btn-close-group {
+  background: #f5576c;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-close-group:hover {
+  opacity: 0.9;
+}
+
 .tab-title {
   font-weight: 600;
   color: #333;

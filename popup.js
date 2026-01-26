@@ -16,92 +16,94 @@ const exportScopeDuplicatesRadio = document.getElementById('exportScopeDuplicate
 // Initialize the popup
 async function init() {
   await updateStats();
-  setupEventListeners();
-  // Disable group-by-domain if tabGroups API is not supported
-  if (!supportsTabGroups()) {
-    groupTabsByDomainBtn.disabled = true;
-    groupTabsByDomainBtn.title = 'Tab groups not supported in this browser';
-  } else {
-    groupTabsByDomainBtn.disabled = false;
-    groupTabsByDomainBtn.title = '';
+  const allTabs = await exec.tabs.query({});
+  // Build map of url -> all tabs with that url
+  const urlMap = new Map();
+  allTabs.forEach(t => {
+    const key = t && t.url ? t.url : 'Unknown';
+    if (!urlMap.has(key)) urlMap.set(key, []);
+    urlMap.get(key).push(t);
+  });
+
+  tabsListElement.innerHTML = '';
+  tabsListElement.classList.add('show');
+
+  // Filter to only groups with more than one tab
+  const groups = Array.from(urlMap.entries()).filter(([url, arr]) => arr.length > 1);
+  if (groups.length === 0) {
+    tabsListElement.innerHTML = '<p style="text-align: center; color: #999;">No duplicate tabs found</p>';
+    return;
   }
-}
 
-function supportsTabGroups() {
-  if (typeof browser !== 'undefined' && browser.tabGroups && browser.tabGroups.update) return true;
-  if (typeof chrome !== 'undefined' && chrome.tabGroups && chrome.tabGroups.update) return true;
-  return false;
-}
+  for (const [url, groupTabs] of groups) {
+    const groupEl = document.createElement('div');
+    groupEl.className = 'duplicate-group';
+    groupEl.innerHTML = `
+      <div class="group-header">
+        <strong>${url}</strong> <span class="group-count">(${groupTabs.length})</span>
+        <button class="btn-close-group" title="Close duplicates for this URL">Close duplicates</button>
+      </div>
+      <div class="group-items"></div>
+    `;
 
-// Compatibility wrapper: prefer `browser` (polyfill) but fall back to promisified `chrome` APIs
-const exec = {
-  tabs: {
-    query: (q) => {
-      if (typeof browser !== 'undefined') return browser.tabs.query(q);
-      if (typeof chrome !== 'undefined' && typeof chrome.tabs.query === 'function' && chrome.tabs.query.length >= 2) {
-        return new Promise((res) => chrome.tabs.query(q, res));
+    const itemsEl = groupEl.querySelector('.group-items');
+
+    groupTabs.forEach((tab, idx) => {
+      const item = document.createElement('div');
+      item.className = 'tab-item';
+      const faviconHtml = tab.favIconUrl ? `<img class="tab-favicon" src="${tab.favIconUrl}" alt="favicon">` : '';
+      const statusHtml = tab.status ? `<span class="status-badge">${tab.status}</span>` : '';
+      item.innerHTML = `
+        <div class="tab-row">
+          ${faviconHtml}
+          <div class="tab-content">
+            <div class="tab-title">${tab.title || 'Untitled'} ${statusHtml}</div>
+            <div class="tab-url">${tab.url || ''}</div>
+          </div>
+          <div class="tab-actions"><button class="btn-close">✖</button></div>
+        </div>
+      `;
+
+      // Individual close
+      const btn = item.querySelector('.btn-close');
+      if (btn) {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          exec.tabs.remove([tab.id]).then(() => {
+            updateStats();
+            listDuplicates();
+          }).catch(() => {});
+        });
       }
-      const maybe = chrome.tabs.query(q);
-      if (maybe && typeof maybe.then === 'function') return maybe;
-      return new Promise((res) => chrome.tabs.query(q, res));
-    },
-    update: (id, opts) => {
-      if (typeof browser !== 'undefined') return browser.tabs.update(id, opts);
-      const maybe = chrome.tabs.update(id, opts);
-      if (maybe && typeof maybe.then === 'function') return maybe;
-      return new Promise((res) => chrome.tabs.update(id, opts, res));
-    },
-    remove: (ids) => {
-      if (typeof browser !== 'undefined') return browser.tabs.remove(ids);
-      const maybe = chrome.tabs.remove(ids);
-      if (maybe && typeof maybe.then === 'function') return maybe;
-      return new Promise((res) => chrome.tabs.remove(ids, res));
-    },
-    group: (opts) => {
-      if (typeof browser !== 'undefined') return browser.tabs.group(opts);
-      const maybe = chrome.tabs.group(opts);
-      if (maybe && typeof maybe.then === 'function') return maybe;
-      return new Promise((res) => chrome.tabs.group(opts, res));
+
+      // Click to activate
+      item.addEventListener('click', () => {
+        exec.tabs.update(tab.id, { active: true }).catch(() => {});
+        exec.windows.update(tab.windowId, { focused: true }).catch(() => {});
+      });
+
+      itemsEl.appendChild(item);
+    });
+
+    // Close duplicates for group (keep first tab)
+    const closeGroupBtn = groupEl.querySelector('.btn-close-group');
+    if (closeGroupBtn) {
+      closeGroupBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // keep first tab in group, close the rest
+        const toClose = groupTabs.slice(1).map(t => t.id);
+        if (toClose.length === 0) return;
+        if (!confirm || confirm(`Close ${toClose.length} duplicate tabs for ${url}?`)) {
+          exec.tabs.remove(toClose).then(() => {
+            updateStats();
+            listDuplicates();
+          }).catch(() => {});
+        }
+      });
     }
-  },
-  windows: {
-    update: (id, opts) => {
-      if (typeof browser !== 'undefined') return browser.windows.update(id, opts);
-      const maybe = chrome.windows.update(id, opts);
-      if (maybe && typeof maybe.then === 'function') return maybe;
-      return new Promise((res) => chrome.windows.update(id, opts, res));
-    }
-  },
-  runtime: {
-    sendMessage: (msg) => {
-      if (typeof browser !== 'undefined') return browser.runtime.sendMessage(msg);
-      const maybe = chrome.runtime.sendMessage(msg);
-      if (maybe && typeof maybe.then === 'function') return maybe;
-      return new Promise((res) => chrome.runtime.sendMessage(msg, res));
-    }
-  },
-  tabGroups: {
-    update: (groupId, opts) => {
-      if (typeof browser !== 'undefined' && browser.tabGroups && browser.tabGroups.update) return browser.tabGroups.update(groupId, opts);
-      if (typeof chrome !== 'undefined' && chrome.tabGroups && chrome.tabGroups.update) {
-        const maybe = chrome.tabGroups.update(groupId, opts);
-        if (maybe && typeof maybe.then === 'function') return maybe;
-        return new Promise((res) => chrome.tabGroups.update(groupId, opts, res));
-      }
-      return Promise.reject(new Error('tabGroups API not supported'));
-    }
+
+    tabsListElement.appendChild(groupEl);
   }
-};
-
-// Track which list is currently shown: 'all', 'duplicates', or null
-let currentListMode = null;
-
-// Update tab statistics
-async function updateStats() {
-  const tabs = await exec.tabs.query({});
-  const duplicates = (typeof utils !== 'undefined' && utils.findDuplicateTabs)
-    ? utils.findDuplicateTabs(tabs)
-    : findDuplicateTabs(tabs);
 
   totalTabsElement.textContent = tabs.length;
   duplicateTabsElement.textContent = duplicates.length;
