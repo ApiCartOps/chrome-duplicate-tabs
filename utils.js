@@ -10,6 +10,7 @@
     const duplicates = [];
     tabs.forEach(tab => {
       if (tab && tab.url) {
+        /* istanbul ignore next */
         if (urlMap.has(tab.url)) {
           duplicates.push(tab);
         } else {

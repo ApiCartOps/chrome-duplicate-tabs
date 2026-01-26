@@ -23,4 +23,16 @@ describe('utils', () => {
     const allowed = ['grey', 'blue', 'red', 'yellow', 'green', 'pink', 'purple', 'cyan', 'orange'];
     expect(allowed).toContain(color);
   });
+
+  test('findDuplicateTabs ignores tabs without url or invalid entries', () => {
+    const tabs = [
+      null,
+      { id: 4 },
+      { id: 5, url: 'https://unique.com' },
+      { id: 6, url: 'https://unique.com' }
+    ];
+    const duplicates = utils.findDuplicateTabs(tabs);
+    expect(duplicates.length).toBe(1);
+    expect(duplicates[0].id).toBe(6);
+  });
 });
