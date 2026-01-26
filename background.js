@@ -211,6 +211,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // Initialize on startup
 initializeTabs();
 console.log('Background service worker initialized');
+// Temporary debug: force a visible badge while debugging tests
+try {
+  chrome.action.setBadgeText({ text: 'DBG' });
+  chrome.action.setBadgeBackgroundColor({ color: '#0088FF' });
+  console.log('Set debug badge');
+} catch (e) {}
 // Test helpers exposed for automated tests (will be removed after debugging)
 try {
   self.__TEST_HELPERS__ = {
