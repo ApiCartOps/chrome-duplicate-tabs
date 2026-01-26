@@ -37,15 +37,21 @@ test('toggle list buttons collapse when clicked again', async ({ browser }) => {
 
   // Click List All Tabs -> shows 3 items
   await page.click('#listAllTabs');
+  await page.waitForSelector('#tabsList .tab-item');
   await expect(page.locator('#tabsList .tab-item')).toHaveCount(3);
+  // Each item should have a close button
+  await expect(page.locator('#tabsList .tab-item .btn-close')).toHaveCount(3);
 
   // Click again -> collapses
   await page.click('#listAllTabs');
   await expect(page.locator('#tabsList .tab-item')).toHaveCount(0);
 
-  // Click List Duplicates -> shows 1 duplicate item (implementation lists only subsequent duplicates)
+  // Click List Duplicates -> shows grouped duplicates
   await page.click('#listDuplicateTabs');
-  await expect(page.locator('#tabsList .tab-item')).toHaveCount(1);
+  // One duplicate group
+  await expect(page.locator('#tabsList .duplicate-group')).toHaveCount(1);
+  // The group should contain two tab items (original + duplicate)
+  await expect(page.locator('#tabsList .duplicate-group .tab-item')).toHaveCount(2);
 
   // Click again -> collapses
   await page.click('#listDuplicateTabs');
