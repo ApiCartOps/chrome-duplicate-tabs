@@ -40,7 +40,20 @@ function updateBadge() {
       chrome.action.setBadgeText({ text: '' });
     }
   } catch (e) {}
+
+  // Some Chromium builds expect per-tab badge text; set per-tab badges as well.
+  try {
+    chrome.tabs.query({}, (tabs) => {
+      for (const t of (tabs || [])) {
+        try {
+          if (duplicateCount > 0) chrome.action.setBadgeText({ tabId: t.id, text: String(duplicateCount) });
+          else chrome.action.setBadgeText({ tabId: t.id, text: '' });
+        } catch (e) {}
+      }
+    });
+  } catch (e) {}
 }
+
 
 function addTab(tabId, rawUrl) {
   const url = normalizeUrl(rawUrl);
