@@ -90,10 +90,13 @@ async function updateStats() {
 function supportsTabGroups() {
   try {
     // Prefer explicit tabGroups API when available (e.g. Chrome),
-    // otherwise fall back to tabs.group if provided by the platform.
-    if (typeof chrome !== 'undefined' && chrome.tabGroups) return true;
-    if (exec && exec.tabGroups && typeof exec.tabGroups.update === 'function') return true;
-    return !!(exec && exec.tabs && typeof exec.tabs.group === 'function');
+      // Prefer explicit tabGroups API on the platform (chrome/browser).
+      if (typeof chrome !== 'undefined' && chrome.tabGroups) return true;
+      if (typeof browser !== 'undefined' && browser.tabGroups) return true;
+      // Fall back to checking chrome.tabs.group only if the platform exposes it.
+      if (typeof chrome !== 'undefined' && chrome.tabs && typeof chrome.tabs.group === 'function') return true;
+      if (typeof browser !== 'undefined' && browser.tabs && typeof browser.tabs.group === 'function') return true;
+      return false;
   } catch (e) {
     return false;
   }
