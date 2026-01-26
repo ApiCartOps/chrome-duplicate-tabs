@@ -89,6 +89,10 @@ async function updateStats() {
 
 function supportsTabGroups() {
   try {
+    // Prefer explicit tabGroups API when available (e.g. Chrome),
+    // otherwise fall back to tabs.group if provided by the platform.
+    if (typeof chrome !== 'undefined' && chrome.tabGroups) return true;
+    if (exec && exec.tabGroups && typeof exec.tabGroups.update === 'function') return true;
     return !!(exec && exec.tabs && typeof exec.tabs.group === 'function');
   } catch (e) {
     return false;
@@ -100,6 +104,10 @@ async function init() {
   await updateStats();
   // wire up button handlers
   try { setupEventListeners(); } catch (e) {}
+  // Enable/disable Group button based on feature detection
+  try {
+    if (groupTabsByDomainBtn) groupTabsByDomainBtn.disabled = !supportsTabGroups();
+  } catch (e) {}
   const allTabs = await exec.tabs.query({});
   // Build map of url -> all tabs with that url
   const urlMap = new Map();
