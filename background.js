@@ -211,6 +211,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // Initialize on startup
 initializeTabs();
 console.log('Background service worker initialized');
+// Test helpers exposed for automated tests (will be removed after debugging)
+try {
+  self.__TEST_HELPERS__ = {
+    getState: () => ({
+      duplicateCount: typeof duplicateCount !== 'undefined' ? duplicateCount : null,
+      urlCounts: (typeof urlCounts !== 'undefined') ? Array.from(urlCounts.entries()) : null,
+      tabRegistry: (typeof tabRegistry !== 'undefined') ? Array.from(tabRegistry.entries()) : null
+    }),
+    getTabs: () => new Promise((res) => {
+      try { chrome.tabs.query({}, (tabs) => res(tabs.map(t => ({ id: t.id, url: t.url })))); }
+      catch (e) { res(null); }
+    }),
+    testLog: (msg) => { try { console.log('[SW-TEST]', msg); } catch (e) {} }
+  };
+} catch (e) {}
 // Background service worker for Smart Tab Manager
 // Tracks tabs and their URLs to compute duplicate counts
 
