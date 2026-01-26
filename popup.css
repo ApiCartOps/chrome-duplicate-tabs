@@ -10,8 +10,8 @@
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  width: 90vw;
-  max-width: 900px;
+  /* let the browser popup determine viewport; keep center alignment */
+  width: auto;
   min-height: 320px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
@@ -23,8 +23,9 @@ body {
   background: #fff;
   border-radius: 10px;
   padding: 18px;
-  width: 92%;
-  max-width: 860px;
+  /* size relative to available popup viewport but cap to reasonable max */
+  width: min(92%, 900px);
+  max-width: 900px;
   box-shadow: 0 10px 30px rgba(18, 22, 33, 0.18);
 }
 
