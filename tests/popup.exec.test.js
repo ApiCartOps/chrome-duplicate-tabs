@@ -4,13 +4,17 @@ const path = require('path');
 beforeEach(() => {
   // Ensure a minimal DOM expected by popup.js
   document.body.innerHTML = `
-    <div>
+      <div>
       <span id="totalTabs"></span>
       <span id="duplicateTabs"></span>
       <div id="tabsList"></div>
       <button id="listAllTabs"></button>
       <button id="listDuplicateTabs"></button>
       <button id="exportListBtn"></button>
+      <select id="exportFormat">
+        <option value="csv">CSV</option>
+        <option value="json">JSON</option>
+      </select>
       <button id="closeDuplicateTabs"></button>
       <button id="groupTabsByDomain"></button>
       <button id="closeTabsExceptActive"></button>

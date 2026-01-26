@@ -8,6 +8,7 @@ const closeDuplicateTabsBtn = document.getElementById('closeDuplicateTabs');
 const groupTabsByDomainBtn = document.getElementById('groupTabsByDomain');
 const closeTabsExceptActiveBtn = document.getElementById('closeTabsExceptActive');
 const exportListBtn = document.getElementById('exportListBtn');
+const exportFormatSelect = document.getElementById('exportFormat');
 
 // Initialize the popup
 async function init() {
@@ -163,8 +164,14 @@ async function exportList() {
     return;
   }
 
-  const csv = tabsToCsv(tabs);
-  triggerDownload(csv, 'tabs-export.csv', 'text/csv');
+  const format = (exportFormatSelect && exportFormatSelect.value) ? exportFormatSelect.value : 'csv';
+  if (format === 'json') {
+    const content = JSON.stringify(tabs, null, 2);
+    triggerDownload(content, 'tabs-export.json', 'application/json');
+  } else {
+    const csv = tabsToCsv(tabs);
+    triggerDownload(csv, 'tabs-export.csv', 'text/csv');
+  }
 }
 
 function tabsToCsv(tabs) {
