@@ -261,9 +261,29 @@ function toggleFullView() {
       if (container) container.classList.toggle('fullscreen');
       return;
     }
-    // open a new tab with the full param so user gets a full browser tab view
-    const fullUrl = chrome && chrome.runtime ? chrome.runtime.getURL('popup.html') + '?full=1' : window.location.href + '?full=1';
-    window.open(fullUrl, '_blank');
+    // open a new popup window positioned at the top-right of the screen
+    const fullUrl = (typeof chrome !== 'undefined' && chrome.runtime) ? chrome.runtime.getURL('popup.html') + '?full=1' : window.location.href + '?full=1';
+    try {
+      const availW = window.screen && window.screen.availWidth ? window.screen.availWidth : window.innerWidth;
+      const availH = window.screen && window.screen.availHeight ? window.screen.availHeight : window.innerHeight;
+      const w = Math.min(1000, Math.max(600, Math.floor(availW * 0.6)));
+      const h = Math.min(900, Math.max(480, Math.floor(availH * 0.8)));
+      const left = Math.max(0, Math.floor(availW - w - 12));
+      const top = 0;
+      if (typeof chrome !== 'undefined' && chrome.windows && typeof chrome.windows.create === 'function') {
+        try {
+          chrome.windows.create({ url: fullUrl, type: 'popup', left: left, top: top, width: w, height: h }, () => {});
+        } catch (err) {
+          // fallback to window.open
+          window.open(fullUrl, '_blank', `width=${w},height=${h},left=${left},top=${top}`);
+        }
+      } else {
+        window.open(fullUrl, '_blank', `width=${w},height=${h},left=${left},top=${top}`);
+      }
+    } catch (err) {
+      // fallback simple open
+      window.open(fullUrl, '_blank');
+    }
     // close current popup to avoid duplicate windows
     try { window.close(); } catch (e) {}
   } catch (e) { console.error('toggleFullView error', e); }
