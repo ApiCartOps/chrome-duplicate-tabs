@@ -74,14 +74,28 @@ function getDuplicateInfo() {
 
 function initializeTabs() {
   try {
-    chrome.tabs.query({}, (tabs) => {
-      tabRegistry.clear();
-      urlCounts.clear();
-      duplicateCount = 0;
-      for (const t of tabs) if (t && t.url) addTab(t.id, t.url);
+    return new Promise((resolve) => {
+      try {
+        chrome.tabs.query({}, (tabs) => {
+          try {
+            tabRegistry.clear();
+            urlCounts.clear();
+            duplicateCount = 0;
+            for (const t of tabs) if (t && t.url) addTab(t.id, t.url);
+            resolve({ ok: true, count: duplicateCount });
+          } catch (inner) {
+            console.error('initializeTabs inner error', inner);
+            resolve({ ok: false, error: String(inner) });
+          }
+        });
+      } catch (e) {
+        console.error('initializeTabs failed', e);
+        resolve({ ok: false, error: String(e) });
+      }
     });
   } catch (e) {
-    console.error('initializeTabs failed', e);
+    console.error('initializeTabs unexpected error', e);
+    return Promise.resolve({ ok: false, error: String(e) });
   }
 }
 
@@ -133,7 +147,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 // Initialize on startup
-initializeTabs();
+// Ensure initialization runs on startup and installation, with a retry
+initializeTabs().then(() => console.log('Background initialized (first run)')).catch(() => {});
+// Also retry shortly after to handle service-worker start races
+setTimeout(() => { initializeTabs().then(() => console.log('Background initialized (retry)')).catch(() => {}); }, 1500);
+
+// Listen for lifecycle events
+try {
+  chrome.runtime.onInstalled.addListener(() => { initializeTabs().catch(() => {}); });
+} catch (e) {}
+try {
+  chrome.runtime.onStartup.addListener(() => { initializeTabs().catch(() => {}); });
+} catch (e) {}
+
 console.log('Background service worker (clean) initialized');
 
 function updateTab(tabId, newUrl) {
