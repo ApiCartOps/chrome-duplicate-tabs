@@ -292,8 +292,24 @@ async function listAllTabs() {
           </div>
           <div class="tab-url">${tab.url || ''}</div>
         </div>
+        <div class="tab-actions">
+          <button class="btn-close" title="Close tab">✖</button>
+        </div>
       </div>
     `;
+
+    // Close button
+    const closeBtn = tabItem.querySelector('.btn-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        exec.tabs.remove([tab.id]).then(() => {
+          updateStats();
+          if (currentListMode === 'all') listAllTabs();
+          else if (currentListMode === 'duplicates') listDuplicates();
+        }).catch(() => {});
+      });
+    }
 
     // Make tab clickable to switch to it
     tabItem.addEventListener('click', () => {
@@ -327,35 +343,79 @@ async function listDuplicates() {
     tabsListElement.innerHTML = '<p style="text-align: center; color: #999;">No duplicate tabs found</p>';
     return;
   }
-
+  // Group duplicates by URL and render groups
+  const groups = new Map();
   duplicates.forEach(tab => {
-    const tabItem = document.createElement('div');
-    tabItem.className = 'tab-item';
+    const key = tab.url || 'Unknown';
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(tab);
+  });
 
-    const faviconHtml = tab.favIconUrl ? `<img class="tab-favicon" src="${tab.favIconUrl}" alt="favicon">` : '';
-    const statusHtml = tab.status ? `<span class="status-badge">${tab.status}</span>` : '';
-
-    tabItem.innerHTML = `
-      <div class="tab-row">
-        ${faviconHtml}
-        <div class="tab-content">
-          <div class="tab-title">
-            ${tab.title || 'Untitled'}
-            <span class="duplicate-badge">DUPLICATE</span>
-            ${statusHtml}
-          </div>
-          <div class="tab-url">${tab.url || ''}</div>
-        </div>
+  for (const [url, groupTabs] of groups.entries()) {
+    const groupEl = document.createElement('div');
+    groupEl.className = 'duplicate-group';
+    groupEl.innerHTML = `
+      <div class="group-header">
+        <strong>${url}</strong> <span class="group-count">(${groupTabs.length})</span>
+        <button class="btn-close-group" title="Close duplicates for this URL">Close duplicates</button>
       </div>
+      <div class="group-items"></div>
     `;
 
-    tabItem.addEventListener('click', () => {
-      exec.tabs.update(tab.id, { active: true }).catch(() => {});
-      exec.windows.update(tab.windowId, { focused: true }).catch(() => {});
+    const itemsEl = groupEl.querySelector('.group-items');
+
+    groupTabs.forEach(tab => {
+      const item = document.createElement('div');
+      item.className = 'tab-item';
+      const faviconHtml = tab.favIconUrl ? `<img class="tab-favicon" src="${tab.favIconUrl}" alt="favicon">` : '';
+      const statusHtml = tab.status ? `<span class="status-badge">${tab.status}</span>` : '';
+      item.innerHTML = `
+        <div class="tab-row">
+          ${faviconHtml}
+          <div class="tab-content">
+            <div class="tab-title">${tab.title || 'Untitled'} ${statusHtml}</div>
+            <div class="tab-url">${tab.url || ''}</div>
+          </div>
+          <div class="tab-actions"><button class="btn-close">✖</button></div>
+        </div>
+      `;
+
+      // Individual close
+      const btn = item.querySelector('.btn-close');
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        exec.tabs.remove([tab.id]).then(() => {
+          updateStats();
+          listDuplicates();
+        }).catch(() => {});
+      });
+
+      // Click to activate
+      item.addEventListener('click', () => {
+        exec.tabs.update(tab.id, { active: true }).catch(() => {});
+        exec.windows.update(tab.windowId, { focused: true }).catch(() => {});
+      });
+
+      itemsEl.appendChild(item);
     });
 
-    tabsListElement.appendChild(tabItem);
-  });
+    // Close duplicates for group (keep one)
+    const closeGroupBtn = groupEl.querySelector('.btn-close-group');
+    closeGroupBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // keep first tab in group, close the rest
+      const toClose = groupTabs.slice(1).map(t => t.id);
+      if (toClose.length === 0) return;
+      if (!confirm || confirm(`Close ${toClose.length} duplicate tabs for ${url}?`)) {
+        exec.tabs.remove(toClose).then(() => {
+          updateStats();
+          listDuplicates();
+        }).catch(() => {});
+      }
+    });
+
+    tabsListElement.appendChild(groupEl);
+  }
   currentListMode = 'duplicates';
 }
 
