@@ -4,6 +4,11 @@
   box-sizing: border-box;
 }
 
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
 .body-viewport {
   /* wrapper for controlling popup viewport sizing when embedded in pages */
 }
@@ -32,6 +37,7 @@ body {
   /* constrain overall popup height so internal content scrolls instead of whole popup */
   max-height: 640px;
   box-shadow: 0 10px 30px rgba(18, 22, 33, 0.18);
+  overflow: hidden;
 }
 
 .side-menu {
@@ -196,6 +202,8 @@ h1 {
   /* allow tabs list to take remaining content space and scroll internally */
   flex: 1 1 auto;
   overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   box-shadow: inset 0 1px 0 rgba(0,0,0,0.02);
   display: none;
 }
@@ -244,6 +252,9 @@ h1 {
   gap: 10px;
   border: 1px solid #f0f0f0;
   transition: transform 0.06s ease;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .tab-item:hover {
@@ -256,6 +267,7 @@ h1 {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex: 0 0 auto;
 }
 
 .btn-close {
@@ -292,12 +304,18 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   margin-bottom: 8px;
 }
 
 .group-header strong {
   font-size: 13px;
   color: #222;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .group-count {
@@ -344,6 +362,7 @@ h1 {
 .tab-content {
   flex: 1 1 auto;
   min-width: 0;
+  overflow: hidden;
 }
 
 .status-badge {
