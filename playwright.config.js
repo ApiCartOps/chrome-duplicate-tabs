@@ -12,6 +12,7 @@ module.exports = defineConfig({
   },
   projects: [
     { name: 'chromium', use: { browserName: 'chromium' } },
+    { name: 'edge', use: { browserName: 'chromium', channel: 'msedge' } },
     { name: 'firefox', use: { browserName: 'firefox' } }
   ],
   reporter: [['list']]
