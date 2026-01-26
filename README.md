@@ -10,6 +10,8 @@ A powerful Chrome Extension (Manifest V3) that helps you efficiently manage open
 - **Group Tabs by Domain**: Organize tabs by their domain names into tab groups
 - **Close Tabs Except Active**: Quickly close all tabs except the one you're currently viewing
 
+- **Export Lists (CSV / JSON)**: Export the currently shown list (All or Duplicates) as a timestamped CSV or JSON file. Exports include `id`, `title`, `url`, `windowId`, `favIconUrl`, and `status` fields.
+
 ## Installation
 
 ### Install from Source
@@ -67,6 +69,19 @@ chrome-duplicate-tabs/
     ├── icon16.png
     ├── icon48.png
     └── icon128.png
+
+## Testing
+
+- Unit tests: Jest is configured (jsdom) — run `npm test`.
+- E2E tests: Playwright tests are under `tests/playwright/`. Run `npx playwright test` or `npm run test:e2e` to execute browser tests (Chromium + Firefox projects are configured).
+
+We added Playwright coverage for the popup UI including export behavior (`tests/playwright/export.spec.js`). The CI workflow runs Jest and Playwright on push/pull request to `main`.
+
+## Notes / Tips
+
+- Export filenames are timestamped like `tabs-export-YYYYMMDD_hhmmss.csv` or `.json`.
+- The popup UI shows favicons (when available) and a small `status` badge next to tab titles.
+- If you want a different export filename pattern or additional fields, open an issue or request the change.
 ```
 
 ## License
