@@ -455,7 +455,7 @@ async function listDuplicates() {
     return;
   }
 
-  for (const [url, groupTabs] of groups.entries()) {
+  for (const [url, groupTabs] of groups) {
     const groupEl = document.createElement('div');
     groupEl.className = 'duplicate-group';
     groupEl.innerHTML = `
