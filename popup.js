@@ -155,7 +155,7 @@ async function init() {
             <div class="tab-title">${tab.title || 'Untitled'} ${statusHtml}</div>
             <div class="tab-url">${tab.url || ''}</div>
           </div>
-          <div class="tab-actions"><button class="btn-close">✖</button></div>
+          <div class="tab-actions"><button class="btn-close">x</button></div>
         </div>
       `;
 
@@ -480,7 +480,7 @@ async function listDuplicates() {
             <div class="tab-title">${tab.title || 'Untitled'} ${statusHtml}</div>
             <div class="tab-url">${tab.url || ''}</div>
           </div>
-          <div class="tab-actions"><button class="btn-close">✖</button></div>
+          <div class="tab-actions"><button class="btn-close">x</button></div>
         </div>
       `;
 
