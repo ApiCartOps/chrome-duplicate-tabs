@@ -35,8 +35,8 @@ function preferBrowserSpecificSettings() {
 function buildWithWebExt() {
   ensureArtifactsDir();
   try {
-    console.log('Running web-ext build...');
-    cp.execSync(`npx web-ext build --source-dir . --artifacts-dir "${artifactsDir}"`, { cwd: root, stdio: 'inherit' });
+    console.log('Running web-ext build (overwrite dest)...');
+    cp.execSync(`npx web-ext build --source-dir . --artifacts-dir "${artifactsDir}" --overwrite-dest`, { cwd: root, stdio: 'inherit' });
   } catch (e) {
     console.error('web-ext build failed:', e && e.message);
     process.exit(3);
