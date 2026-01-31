@@ -8,16 +8,16 @@
     <link rel="stylesheet" href="popup.css">
   </head>
   <body>
-    <div class="container">
-      <aside class="side-menu" role="navigation" aria-label="Actions">
+    <div class="container bg-white rounded-lg p-2 flex gap-3 items-stretch max-w-[96vw] md:max-w-[900px] max-h-[640px] shadow-lg relative">
+      <aside class="side-menu bg-gradient-to-b from-gray-100 to-white p-3 rounded-lg flex flex-col gap-2 z-40 transition-all duration-300" role="navigation" aria-label="Actions">
         <div class="actions">
-          <button id="listAllTabs" class="btn btn-primary" title="List all tabs" aria-label="List all tabs"><span class="btn-icon">📋</span><span class="btn-label">List All</span></button>
-          <button id="listDuplicateTabs" class="btn btn-secondary" title="List duplicates" aria-label="List duplicates"><span class="btn-icon">🔎</span><span class="btn-label">Duplicates</span></button>
+          <button id="listAllTabs" class="btn btn-primary flex items-center gap-3 justify-center w-11 h-11 md:w-full md:h-10" title="List all tabs" aria-label="List all tabs"><span class="btn-icon">📋</span><span class="btn-label">List All</span></button>
+          <button id="listDuplicateTabs" class="btn btn-secondary flex items-center gap-3 justify-center w-11 h-11 md:w-full md:h-10" title="List duplicates" aria-label="List duplicates"><span class="btn-icon">🔎</span><span class="btn-label">Duplicates</span></button>
           <!-- removed quick-export from side menu to avoid duplicate controls -->
           <!-- export controls moved to header/stats to reduce duplication -->
-          <button id="closeDuplicateTabs" class="btn btn-danger" title="Close duplicate tabs" aria-label="Close duplicate tabs"><span class="btn-icon">🗑️</span><span class="btn-label">Close Dups</span></button>
-          <button id="groupTabsByDomain" class="btn btn-info" title="Group tabs by domain" aria-label="Group tabs by domain"><span class="btn-icon">🗂️</span><span class="btn-label">Group by Domain</span></button>
-          <button id="closeTabsExceptActive" class="btn btn-warning" title="Close other tabs" aria-label="Close other tabs"><span class="btn-icon">❌</span><span class="btn-label">Close Others</span></button>
+          <button id="closeDuplicateTabs" class="btn btn-danger flex items-center gap-3 justify-center w-11 h-11 md:w-full md:h-10" title="Close duplicate tabs" aria-label="Close duplicate tabs"><span class="btn-icon">🗑️</span><span class="btn-label">Close Dups</span></button>
+          <button id="groupTabsByDomain" class="btn btn-info flex items-center gap-3 justify-center w-11 h-11 md:w-full md:h-10" title="Group tabs by domain" aria-label="Group tabs by domain"><span class="btn-icon">🗂️</span><span class="btn-label">Group by Domain</span></button>
+          <button id="closeTabsExceptActive" class="btn btn-warning flex items-center gap-3 justify-center w-11 h-11 md:w-full md:h-10" title="Close other tabs" aria-label="Close other tabs"><span class="btn-icon">❌</span><span class="btn-label">Close Others</span></button>
         </div>
         <div class="side-menu-footer">
           <button id="toggleSideMenu" class="btn btn-outline" title="Expand side menu" aria-label="Toggle side menu" aria-expanded="false">

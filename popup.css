@@ -23,19 +23,8 @@ body {
   padding: 12px;
 }
 
+/* Container layout is mainly handled by Tailwind utilities; keep a few needed overrides */
 .container {
-  background: #fff;
-  border-radius: 10px;
-  padding: 8px;
-  /* two-column layout: side menu + content */
-  display: flex;
-  gap: 12px;
-  align-items: stretch;
-  width: min(96vw, 900px);
-  max-width: 900px;
-  /* constrain overall popup height so internal content scrolls instead of whole popup */
-  max-height: 640px;
-  box-shadow: 0 10px 30px rgba(18, 22, 33, 0.18);
   position: relative;
 }
 
@@ -48,6 +37,31 @@ body {
   padding: 12px !important;
 }
 
+/* Minimal side-menu base; most styling now via Tailwind classes */
+.side-menu {
+  /* collapsed->expanded behavior handled via .expanded and Tailwind transitions */
+  width: 72px;
+  min-width: 64px;
+}
+
+.side-menu.expanded {
+  width: 180px;
+}
+
+.side-menu .btn .btn-label {
+  display: inline-block;
+  margin-left: 8px;
+  font-weight: 700;
+  color: #214;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.side-menu.expanded .btn .btn-label {
+  opacity: 1;
+}
+
+.side-menu-footer { margin-top: auto; display: flex; justify-content: center; }
 .side-menu {
   width: 72px; /* slightly narrower collapsed state */
   min-width: 64px;
