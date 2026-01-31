@@ -25,6 +25,10 @@ jobs:
         run: |
           npm ci
 
+      - name: Build Tailwind CSS
+        run: |
+          npm run build:css
+
       - name: Install Playwright browsers
         run: |
           npx playwright install --with-deps firefox chromium
@@ -43,6 +47,12 @@ jobs:
           npx playwright test tests/playwright/export.spec.js --project=chromium,firefox --reporter=list || true
           # then run the full Playwright suite
           npx playwright test --project=chromium,firefox --reporter=list
+
+      - name: Upload dist CSS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-css
+          path: dist/tailwind.css
 
   e2e-edge:
     name: Playwright E2E (Edge)

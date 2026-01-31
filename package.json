@@ -28,7 +28,8 @@
     "screenshots": "node scripts/svg-to-png.js",
     "build:xpi": "npx web-ext build --source-dir . --overwrite-dest --artifacts-dir tests/playwright/.web-ext-artifacts && node ./scripts/convert-zip-to-xpi.js",
     "build:css": "npx tailwindcss -i ./src/styles/tailwind.css -o ./dist/tailwind.css --minify",
-    "watch:css": "npx tailwindcss -i ./src/styles/tailwind.css -o ./dist/tailwind.css --watch"
+    "watch:css": "npx tailwindcss -i ./src/styles/tailwind.css -o ./dist/tailwind.css --watch",
+    "scan:css": "bash scripts/scan-legacy-css.sh"
   }
   ,
   "jest": {
