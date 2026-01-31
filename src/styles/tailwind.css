@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Small example component utility for the app header */
+.header-left .app-logo { @apply rounded-md shadow-sm; }

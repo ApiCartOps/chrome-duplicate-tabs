@@ -57,6 +57,20 @@ This extension requires the following permissions:
 
 The extension is built with vanilla JavaScript and uses Manifest V3 for modern Chrome extension development.
 
+We now include Tailwind CSS for rapid UI development. To build the stylesheet used by the extension run:
+
+```bash
+npm run build:css
+```
+
+For development (rebuild on file changes):
+
+```bash
+npm run watch:css
+```
+
+The generated CSS is `dist/tailwind.css` and is included by `popup.html`. You can progressively adopt Tailwind utility classes while keeping the existing `popup.css` for bespoke styles.
+
 ### File Structure
 ```
 chrome-duplicate-tabs/
