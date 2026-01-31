@@ -262,6 +262,22 @@ function setupEventListeners() {
   if (closeTabsExceptActiveBtn) closeTabsExceptActiveBtn.addEventListener('click', closeTabsExceptActive);
   if (toggleSideMenuBtn) toggleSideMenuBtn.addEventListener('click', toggleSideMenu);
   if (toggleSideMenuInlineBtn) toggleSideMenuInlineBtn.addEventListener('click', toggleSideMenu);
+
+  // Overlay controls for small screens
+  const closeOverlayBtn = document.getElementById('closeOverlayBtn');
+  if (closeOverlayBtn) closeOverlayBtn.addEventListener('click', closeOverlay);
+  const overlay = document.getElementById('sideMenuOverlay');
+  if (overlay) {
+    // clicking backdrop closes overlay
+    const backdrop = overlay.querySelector('.overlay-backdrop');
+    if (backdrop) backdrop.addEventListener('click', () => closeOverlay());
+
+    // overlay menu items trigger existing actions
+    const overlayListAll = document.getElementById('overlayListAll');
+    if (overlayListAll) overlayListAll.addEventListener('click', (e) => { e.stopPropagation(); listAllTabs(); closeOverlay(); });
+    const overlayListDuplicates = document.getElementById('overlayListDuplicates');
+    if (overlayListDuplicates) overlayListDuplicates.addEventListener('click', (e) => { e.stopPropagation(); listDuplicates(); closeOverlay(); });
+  }
 }
 
 // Toggle full view: if opened as a normal tab (full=1) toggle CSS fullscreen class;
@@ -316,6 +332,12 @@ function handleKeydown(e) {
 }
 
 // Toggle side menu expand/collapse and remember the preference in localStorage
+function isSmallScreen() {
+  try {
+    return window.matchMedia && window.matchMedia('(max-width: 767px)').matches;
+  } catch (e) { return false; }
+}
+
 function updateSideMenuToggleUi() {
   try {
     const sideMenu = document.querySelector('.side-menu');
@@ -335,8 +357,67 @@ function updateSideMenuToggleUi() {
   } catch (e) { }
 }
 
+function openOverlay() {
+  try {
+    const overlay = document.getElementById('sideMenuOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('hidden');
+    // focus management: move focus to close button
+    const closeBtn = document.getElementById('closeOverlayBtn');
+    closeBtn && closeBtn.focus();
+    // also make overlay focusable and focus it so key events are reliably captured
+    const overlay = document.getElementById('sideMenuOverlay');
+    if (overlay) {
+      overlay.tabIndex = -1;
+      try { overlay.focus(); } catch (e) {}
+      overlay.addEventListener('keydown', overlayEscapeHandler, true);
+    }
+    // set aria-expanded on toggle buttons
+    const btn = document.getElementById('toggleSideMenu');
+    const inlineBtn = document.getElementById('toggleSideMenuInline');
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+    if (inlineBtn) inlineBtn.setAttribute('aria-expanded', 'true');
+    // trap Escape to close overlay (attach to window for reliability)
+    window.addEventListener('keydown', overlayEscapeHandler);
+  } catch (e) { console.error('openOverlay error', e); }
+}
+
+function closeOverlay() {
+  try {
+    const overlay = document.getElementById('sideMenuOverlay');
+    if (!overlay) return;
+    overlay.classList.add('hidden');
+    // restore aria-expanded
+    const btn = document.getElementById('toggleSideMenu');
+    const inlineBtn = document.getElementById('toggleSideMenuInline');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+    if (inlineBtn) inlineBtn.setAttribute('aria-expanded', 'false');
+    // return focus to hamburger
+    const btnEl = document.getElementById('toggleSideMenu');
+    btnEl && btnEl.focus();
+    window.removeEventListener('keydown', overlayEscapeHandler);
+    const overlay = document.getElementById('sideMenuOverlay');
+    if (overlay) {
+      try { overlay.removeEventListener('keydown', overlayEscapeHandler, true); } catch (e) {}
+      try { overlay.tabIndex = -1; } catch (e) {}
+    }
+  } catch (e) { console.error('closeOverlay error', e); }
+}
+
+function overlayEscapeHandler(e) {
+  if (e && e.key && e.key === 'Escape') closeOverlay();
+}
+
 function toggleSideMenu() {
   try {
+    if (isSmallScreen()) {
+      // show overlay on small screens
+      const overlay = document.getElementById('sideMenuOverlay');
+      if (overlay && overlay.classList.contains('hidden')) openOverlay();
+      else closeOverlay();
+      return;
+    }
+
     const sideMenu = document.querySelector('.side-menu');
     if (!sideMenu) return;
     sideMenu.classList.toggle('expanded');

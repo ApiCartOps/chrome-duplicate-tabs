@@ -8,7 +8,7 @@
   </head>
   <body>
     <div class="container bg-white rounded-lg p-2 flex flex-col md:flex-row gap-3 items-stretch max-w-[96vw] md:max-w-[900px] max-h-[640px] shadow-lg relative">
-      <aside class="side-menu bg-gradient-to-b from-gray-100 to-white p-3 rounded-lg md:flex md:flex-col flex-row md:gap-2 gap-3 z-40 transition-all duration-300 md:w-auto w-full items-center md:items-start" role="navigation" aria-label="Actions">
+      <aside id="sideMenu" class="side-menu bg-gradient-to-b from-gray-100 to-white p-3 rounded-lg md:flex md:flex-col flex-row md:gap-2 gap-3 z-40 transition-all duration-300 md:w-auto w-full items-center md:items-start" role="navigation" aria-label="Actions">
         <div class="actions">
           <button id="listAllTabs" class="btn btn-primary flex items-center gap-3 justify-center w-11 h-11 md:w-full md:h-10" title="List all tabs" aria-label="List all tabs"><span class="btn-icon">📋</span><span class="btn-label">List All</span></button>
           <button id="listDuplicateTabs" class="btn btn-secondary flex items-center gap-3 justify-center w-11 h-11 md:w-full md:h-10" title="List duplicates" aria-label="List duplicates"><span class="btn-icon">🔎</span><span class="btn-label">Duplicates</span></button>
@@ -25,6 +25,21 @@
           </button>
         </div>
       </aside>
+
+      <!-- Overlay for small-screen side menu (hidden by default). Shown when hamburger toggled. -->
+      <div id="sideMenuOverlay" class="hidden fixed inset-0 z-50 items-start justify-start">
+        <div class="overlay-backdrop absolute inset-0 bg-black/50"></div>
+        <nav class="overlay-panel relative bg-white w-full max-w-xs h-full p-4 overflow-y-auto shadow-lg">
+          <button id="closeOverlayBtn" class="btn btn-outline mb-4" aria-label="Close menu">✖</button>
+          <div class="overlay-items flex flex-col gap-3">
+            <button id="overlayListAll" class="btn">List All</button>
+            <button id="overlayListDuplicates" class="btn">Duplicates</button>
+            <button id="overlayCloseDuplicates" class="btn">Close Dups</button>
+            <button id="overlayGroupByDomain" class="btn">Group by Domain</button>
+            <button id="overlayCloseOthers" class="btn">Close Others</button>
+          </div>
+        </nav>
+      </div>
 
       <section class="content flex-1 p-3">
         <header class="flex items-center mb-3">
