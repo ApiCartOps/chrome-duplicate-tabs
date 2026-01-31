@@ -362,16 +362,15 @@ function openOverlay() {
     const overlay = document.getElementById('sideMenuOverlay');
     if (!overlay) return;
     overlay.classList.remove('hidden');
-    // focus management: move focus to close button
-    const closeBtn = document.getElementById('closeOverlayBtn');
-    closeBtn && closeBtn.focus();
-    // also make overlay focusable and focus it so key events are reliably captured
+    // also make overlay focusable and add handler so key events are reliably captured
     const overlay = document.getElementById('sideMenuOverlay');
     if (overlay) {
       overlay.tabIndex = -1;
-      try { overlay.focus(); } catch (e) {}
       overlay.addEventListener('keydown', overlayEscapeHandler, true);
     }
+    // focus management: move focus to close button (last to retain focus)
+    const closeBtn = document.getElementById('closeOverlayBtn');
+    closeBtn && closeBtn.focus();
     // set aria-expanded on toggle buttons
     const btn = document.getElementById('toggleSideMenu');
     const inlineBtn = document.getElementById('toggleSideMenuInline');
