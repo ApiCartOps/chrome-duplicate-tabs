@@ -1,4 +1,4 @@
-# 📌 Smart Tab Manager
+# 📌 jwd-browser-tab-manager
 
 A powerful Chrome Extension (Manifest V3) that helps you efficiently manage open tabs, detect and handle duplicate tabs, and organize your browsing experience.
 
@@ -18,8 +18,8 @@ A powerful Chrome Extension (Manifest V3) that helps you efficiently manage open
 
 1. Clone this repository or download the source code
    ```bash
-   git clone https://github.com/ApiCartOps/chrome-duplicate-tabs.git
-   cd chrome-duplicate-tabs
+   git clone https://github.com/ApiCartOps/jwd-browser-tab-manager.git
+   cd jwd-browser-tab-manager
    ```
 
 2. Open Chrome and navigate to `chrome://extensions/`
@@ -30,7 +30,7 @@ A powerful Chrome Extension (Manifest V3) that helps you efficiently manage open
 
 5. Select the directory containing the extension files
 
-6. The Smart Tab Manager extension should now appear in your extensions list
+6. The jwd-browser-tab-manager extension should now appear in your extensions list
 
 ## Usage
 
@@ -56,6 +56,20 @@ This extension requires the following permissions:
 ## Development
 
 The extension is built with vanilla JavaScript and uses Manifest V3 for modern Chrome extension development.
+
+We now include Tailwind CSS for rapid UI development. To build the stylesheet used by the extension run:
+
+```bash
+npm run build:css
+```
+
+For development (rebuild on file changes):
+
+```bash
+npm run watch:css
+```
+
+@note The `dist/tailwind.css` file is generated during CI and included in release packaging. For local development, run `npm run build:css` to generate `dist/tailwind.css` before testing or packaging. You can progressively adopt Tailwind utility classes while keeping custom rules as needed.
 
 ### File Structure
 ```

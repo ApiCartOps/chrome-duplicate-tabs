@@ -8,10 +8,13 @@ const closeDuplicateTabsBtn = document.getElementById('closeDuplicateTabs');
 const groupTabsByDomainBtn = document.getElementById('groupTabsByDomain');
 const closeTabsExceptActiveBtn = document.getElementById('closeTabsExceptActive');
 const exportListBtn = document.getElementById('exportListBtn');
+const toggleFullBtn = document.getElementById('toggleFullBtn');
 const exportCsvCheckbox = document.getElementById('exportCsv');
 const exportJsonCheckbox = document.getElementById('exportJson');
 const exportScopeAllRadio = document.getElementById('exportScopeAll');
 const exportScopeDuplicatesRadio = document.getElementById('exportScopeDuplicates');
+const toggleSideMenuBtn = document.getElementById('toggleSideMenu');
+const toggleSideMenuInlineBtn = document.getElementById('toggleSideMenuInline');
 
 // Track which list is currently shown
 var currentListMode = null;
@@ -89,7 +92,14 @@ async function updateStats() {
 
 function supportsTabGroups() {
   try {
-    return !!(exec && exec.tabs && typeof exec.tabs.group === 'function');
+    // Prefer explicit tabGroups API when available (e.g. Chrome),
+      // Prefer explicit tabGroups API on the platform (chrome/browser).
+      if (typeof chrome !== 'undefined' && chrome.tabGroups) return true;
+      if (typeof browser !== 'undefined' && browser.tabGroups) return true;
+      // Fall back to checking chrome.tabs.group only if the platform exposes it.
+      if (typeof chrome !== 'undefined' && chrome.tabs && typeof chrome.tabs.group === 'function') return true;
+      if (typeof browser !== 'undefined' && browser.tabs && typeof browser.tabs.group === 'function') return true;
+      return false;
   } catch (e) {
     return false;
   }
@@ -100,6 +110,20 @@ async function init() {
   await updateStats();
   // wire up button handlers
   try { setupEventListeners(); } catch (e) {}
+  // Enable/disable Group button based on feature detection
+  try {
+    if (groupTabsByDomainBtn) groupTabsByDomainBtn.disabled = !supportsTabGroups();
+  } catch (e) {}
+
+  // Apply persisted side-menu state (remember expand/collapse between popups)
+  try {
+    const sideMenu = document.querySelector('.side-menu');
+    const stored = (localStorage && localStorage.getItem && localStorage.getItem('sideMenuExpanded')) || '0';
+    if (sideMenu && stored === '1') sideMenu.classList.add('expanded');
+    // Update toggle button icon/title
+    updateSideMenuToggleUi();
+  } catch (e) {}
+
   const allTabs = await exec.tabs.query({});
   // Build map of url -> all tabs with that url
   const urlMap = new Map();
@@ -144,7 +168,7 @@ async function init() {
             <div class="tab-title">${tab.title || 'Untitled'} ${statusHtml}</div>
             <div class="tab-url">${tab.url || ''}</div>
           </div>
-          <div class="tab-actions"><button class="btn-close">✖</button></div>
+          <div class="tab-actions"><button class="btn-close">x</button></div>
         </div>
       `;
 
@@ -229,13 +253,182 @@ function getDomainFromUrl(url) {
 
 // Setup event listeners
 function setupEventListeners() {
-  listAllTabsBtn.addEventListener('click', listAllTabs);
-  listDuplicateTabsBtn.addEventListener('click', listDuplicates);
+  if (listAllTabsBtn) listAllTabsBtn.addEventListener('click', listAllTabs);
+  if (listDuplicateTabsBtn) listDuplicateTabsBtn.addEventListener('click', listDuplicates);
   if (exportListBtn) exportListBtn.addEventListener('click', exportList);
-  closeDuplicateTabsBtn.addEventListener('click', closeDuplicateTabs);
-  groupTabsByDomainBtn.addEventListener('click', groupTabsByDomain);
-  closeTabsExceptActiveBtn.addEventListener('click', closeTabsExceptActive);
+  if (toggleFullBtn) toggleFullBtn.addEventListener('click', toggleFullView);
+  if (closeDuplicateTabsBtn) closeDuplicateTabsBtn.addEventListener('click', closeDuplicateTabs);
+  if (groupTabsByDomainBtn) groupTabsByDomainBtn.addEventListener('click', groupTabsByDomain);
+  if (closeTabsExceptActiveBtn) closeTabsExceptActiveBtn.addEventListener('click', closeTabsExceptActive);
+  if (toggleSideMenuBtn) toggleSideMenuBtn.addEventListener('click', toggleSideMenu);
+  if (toggleSideMenuInlineBtn) toggleSideMenuInlineBtn.addEventListener('click', toggleSideMenu);
+
+  // Overlay controls for small screens
+  const closeOverlayBtn = document.getElementById('closeOverlayBtn');
+  if (closeOverlayBtn) closeOverlayBtn.addEventListener('click', closeOverlay);
+  const overlayEl = document.getElementById('sideMenuOverlay');
+  if (overlayEl) {
+    // clicking backdrop closes overlay
+    const backdrop = overlayEl.querySelector('.overlay-backdrop');
+    if (backdrop) backdrop.addEventListener('click', () => closeOverlay());
+
+    // overlay menu items trigger existing actions
+    const overlayListAll = document.getElementById('overlayListAll');
+    if (overlayListAll) overlayListAll.addEventListener('click', (e) => { e.stopPropagation(); listAllTabs(); closeOverlay(); });
+    const overlayListDuplicates = document.getElementById('overlayListDuplicates');
+    if (overlayListDuplicates) overlayListDuplicates.addEventListener('click', (e) => { e.stopPropagation(); listDuplicates(); closeOverlay(); });
+  }
 }
+
+// Toggle full view: if opened as a normal tab (full=1) toggle CSS fullscreen class;
+// otherwise open a new tab with the full view parameter.
+function toggleFullView() {
+  try {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get('full') === '1') {
+      // toggle class to allow expansion in-page
+      const container = document.querySelector('.container');
+      if (container) container.classList.toggle('fullscreen');
+      return;
+    }
+    // open a new popup window positioned at the top-right of the screen
+    const fullUrl = (typeof chrome !== 'undefined' && chrome.runtime) ? chrome.runtime.getURL('popup.html') + '?full=1' : window.location.href + '?full=1';
+    try {
+      const availW = window.screen && window.screen.availWidth ? window.screen.availWidth : window.innerWidth;
+      const availH = window.screen && window.screen.availHeight ? window.screen.availHeight : window.innerHeight;
+      const w = Math.min(1000, Math.max(600, Math.floor(availW * 0.6)));
+      const h = Math.min(900, Math.max(480, Math.floor(availH * 0.8)));
+      const left = Math.max(0, Math.floor(availW - w - 12));
+      const top = 0;
+      if (typeof chrome !== 'undefined' && chrome.windows && typeof chrome.windows.create === 'function') {
+        try {
+          chrome.windows.create({ url: fullUrl, type: 'popup', left: left, top: top, width: w, height: h }, () => {});
+        } catch (err) {
+          // fallback to window.open
+          window.open(fullUrl, '_blank', `width=${w},height=${h},left=${left},top=${top}`);
+        }
+      } else {
+        window.open(fullUrl, '_blank', `width=${w},height=${h},left=${left},top=${top}`);
+      }
+    } catch (err) {
+      // fallback simple open
+      window.open(fullUrl, '_blank');
+    }
+    // close current popup to avoid duplicate windows
+    try { window.close(); } catch (e) {}
+  } catch (e) { console.error('toggleFullView error', e); }
+}
+
+// Keyboard shortcut handler: toggle full view with `f` (when not typing in inputs)
+function handleKeydown(e) {
+  try {
+    if (!e || !e.key) return;
+    if (e.key.toLowerCase() === 'f') {
+      const active = document.activeElement;
+      if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)) return;
+      toggleFullView();
+    }
+  } catch (err) { console.error('handleKeydown error', err); }
+}
+
+// Toggle side menu expand/collapse and remember the preference in localStorage
+function isSmallScreen() {
+  try {
+    return window.matchMedia && window.matchMedia('(max-width: 767px)').matches;
+  } catch (e) { return false; }
+}
+
+function updateSideMenuToggleUi() {
+  try {
+    const sideMenu = document.querySelector('.side-menu');
+    if (!sideMenu) return;
+    const btn = document.getElementById('toggleSideMenu');
+    const inlineBtn = document.getElementById('toggleSideMenuInline');
+    const icon = btn && btn.querySelector('.btn-icon');
+    if (sideMenu.classList.contains('expanded')) {
+      icon && (icon.textContent = '✖');
+      if (btn) { btn.title = 'Collapse side menu'; btn.setAttribute('aria-expanded', 'true'); }
+      if (inlineBtn) inlineBtn.setAttribute('aria-expanded', 'true');
+    } else {
+      icon && (icon.textContent = '☰');
+      if (btn) { btn.title = 'Expand side menu'; btn.setAttribute('aria-expanded', 'false'); }
+      if (inlineBtn) inlineBtn.setAttribute('aria-expanded', 'false');
+    }
+  } catch (e) { }
+}
+
+function openOverlay() {
+  try {
+    const overlayEl = document.getElementById('sideMenuOverlay');
+    if (!overlayEl) return;
+    // ensure visible regardless of whether Tailwind utilities are present
+    overlayEl.classList.remove('hidden');
+    try { overlayEl.style.display = 'flex'; } catch (e) {}
+    // make overlay focusable and add handler so key events are reliably captured
+    try {
+      overlayEl.tabIndex = -1;
+      overlayEl.addEventListener('keydown', overlayEscapeHandler, true);
+    } catch (e) {}
+    // focus management: move focus to close button (last to retain focus)
+    const closeBtn = document.getElementById('closeOverlayBtn');
+    closeBtn && closeBtn.focus();
+    // set aria-expanded on toggle buttons
+    const btn = document.getElementById('toggleSideMenu');
+    const inlineBtn = document.getElementById('toggleSideMenuInline');
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+    if (inlineBtn) inlineBtn.setAttribute('aria-expanded', 'true');
+    // trap Escape to close overlay (attach to window for reliability)
+    window.addEventListener('keydown', overlayEscapeHandler);
+  } catch (e) { console.error('openOverlay error', e); }
+}
+
+function closeOverlay() {
+  try {
+    const overlayEl = document.getElementById('sideMenuOverlay');
+    if (!overlayEl) return;
+    overlayEl.classList.add('hidden');
+    try { overlayEl.style.display = 'none'; } catch (e) {}
+    // restore aria-expanded
+    const btn = document.getElementById('toggleSideMenu');
+    const inlineBtn = document.getElementById('toggleSideMenuInline');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+    if (inlineBtn) inlineBtn.setAttribute('aria-expanded', 'false');
+    // return focus to hamburger
+    const btnEl = document.getElementById('toggleSideMenu');
+    btnEl && btnEl.focus();
+    window.removeEventListener('keydown', overlayEscapeHandler);
+    try { overlayEl.removeEventListener('keydown', overlayEscapeHandler, true); } catch (e) {}
+    try { overlayEl.tabIndex = -1; } catch (e) {}
+  } catch (e) { console.error('closeOverlay error', e); }
+}
+
+function overlayEscapeHandler(e) {
+  if (e && e.key && e.key === 'Escape') closeOverlay();
+}
+
+function toggleSideMenu() {
+  try {
+    if (isSmallScreen()) {
+      // show overlay on small screens
+      const overlayEl = document.getElementById('sideMenuOverlay');
+      if (overlayEl && overlayEl.classList.contains('hidden')) openOverlay();
+      else closeOverlay();
+      return;
+    }
+
+    const sideMenu = document.querySelector('.side-menu');
+    if (!sideMenu) return;
+    sideMenu.classList.toggle('expanded');
+    const expanded = sideMenu.classList.contains('expanded');
+    try { localStorage.setItem('sideMenuExpanded', expanded ? '1' : '0'); } catch (e) {}
+    updateSideMenuToggleUi();
+  } catch (e) { console.error('toggleSideMenu error', e); }
+}
+
+// Attach keyboard listener during init
+try {
+  if (typeof document !== 'undefined') document.addEventListener('keydown', handleKeydown);
+} catch (e) {}
 
 // Export currently shown list as CSV/JSON
 async function exportList() {
@@ -362,7 +555,7 @@ async function listAllTabs() {
   // Create tab items
   tabs.forEach(tab => {
     const tabItem = document.createElement('div');
-    tabItem.className = 'tab-item';
+    tabItem.className = 'tab-item bg-white rounded-md p-3 mb-2 flex items-center gap-3 border border-gray-100 hover:bg-gray-50';
 
     const isDuplicate = duplicateUrls.has(tab.url);
 
@@ -370,18 +563,18 @@ async function listAllTabs() {
     const statusHtml = tab.status ? `<span class="status-badge">${tab.status}</span>` : '';
 
     tabItem.innerHTML = `
-      <div class="tab-row">
+      <div class="tab-row flex items-center gap-3 w-full">
         ${faviconHtml}
-        <div class="tab-content">
-          <div class="tab-title">
+        <div class="tab-content flex-1 min-w-0">
+          <div class="tab-title text-sm font-semibold text-gray-900">
             ${tab.title || 'Untitled'}
-            ${isDuplicate ? '<span class="duplicate-badge">DUPLICATE</span>' : ''}
+            ${isDuplicate ? '<span class="duplicate-badge bg-red-500 text-white rounded px-2 text-xs ml-2">DUPLICATE</span>' : ''}
             ${statusHtml}
           </div>
-          <div class="tab-url">${tab.url || ''}</div>
+          <div class="tab-url text-xs text-gray-500 truncate">${tab.url || ''}</div>
         </div>
-        <div class="tab-actions">
-          <button class="btn-close" title="Close tab">✖</button>
+        <div class="tab-actions flex items-center gap-2">
+          <button class="btn-close w-8 h-8 rounded border text-red-600" title="Close tab">✖</button>
         </div>
       </div>
     `;
@@ -444,13 +637,13 @@ async function listDuplicates() {
     return;
   }
 
-  for (const [url, groupTabs] of groups.entries()) {
+  for (const [url, groupTabs] of groups) {
     const groupEl = document.createElement('div');
-    groupEl.className = 'duplicate-group';
+    groupEl.className = 'duplicate-group bg-white rounded-md p-3 border border-gray-100 mb-3';
     groupEl.innerHTML = `
-      <div class="group-header">
-        <strong>${url}</strong> <span class="group-count">(${groupTabs.length})</span>
-        <button class="btn-close-group" title="Close duplicates for this URL">Close duplicates</button>
+      <div class="group-header flex items-center justify-between gap-2 mb-2">
+        <strong class="text-sm font-semibold text-gray-900">${url}</strong> <span class="group-count text-xs text-gray-500">(${groupTabs.length})</span>
+        <button class="btn-close-group bg-red-500 text-white px-3 py-1 rounded" title="Close duplicates for this URL">Close duplicates</button>
       </div>
       <div class="group-items"></div>
     `;
@@ -459,17 +652,17 @@ async function listDuplicates() {
 
     groupTabs.forEach(tab => {
       const item = document.createElement('div');
-      item.className = 'tab-item';
+      item.className = 'tab-item bg-white rounded-md p-3 mb-2 flex items-center gap-3 border border-gray-100 hover:bg-gray-50';
       const faviconHtml = tab.favIconUrl ? `<img class="tab-favicon" src="${tab.favIconUrl}" alt="favicon">` : '';
       const statusHtml = tab.status ? `<span class="status-badge">${tab.status}</span>` : '';
       item.innerHTML = `
-        <div class="tab-row">
+        <div class="tab-row flex items-center gap-3 w-full">
           ${faviconHtml}
-          <div class="tab-content">
-            <div class="tab-title">${tab.title || 'Untitled'} ${statusHtml}</div>
-            <div class="tab-url">${tab.url || ''}</div>
+          <div class="tab-content flex-1 min-w-0">
+            <div class="tab-title text-sm font-semibold text-gray-900">${tab.title || 'Untitled'} ${statusHtml}</div>
+            <div class="tab-url text-xs text-gray-500 truncate">${tab.url || ''}</div>
           </div>
-          <div class="tab-actions"><button class="btn-close">✖</button></div>
+          <div class="tab-actions"><button class="btn-close w-8 h-8 rounded border">x</button></div>
         </div>
       `;
 
@@ -658,4 +851,5 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   module.exports = module.exports || {};
   module.exports.exec = exec;
   module.exports.supportsTabGroups = supportsTabGroups;
+  module.exports.toggleSideMenu = toggleSideMenu;
 }

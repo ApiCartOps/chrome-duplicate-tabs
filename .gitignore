@@ -144,3 +144,5 @@ tests/playwright/.tmp-profile-ext/
 tests/playwright/.tmp-profile-firefox/
 tests/playwright/.web-ext-artifacts/
 test-results/
+.temp*
+.tmp*

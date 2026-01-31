@@ -1,0 +1,39 @@
+{
+  "extensionId": "nmodhbajkgiaoniaonabnmehomecoobc",
+  "timestamp": 1769433849127,
+  "sw": {
+    "duplicateCount": 1,
+    "duplicates": [
+      {
+        "url": "https://example.com/",
+        "count": 2
+      }
+    ]
+  },
+  "storage": {
+    "duplicateCount": 1,
+    "urlCounts": [
+      [
+        "about:blank",
+        1
+      ],
+      [
+        "https://example.com/",
+        2
+      ],
+      [
+        "https://example.org/",
+        1
+      ]
+    ]
+  },
+  "badge": "1",
+  "attempts": [
+    {
+      "when": 1769433849953,
+      "stateFound": true,
+      "storageFound": true,
+      "badgeFound": true
+    }
+  ]
+}

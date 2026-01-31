@@ -1,11 +1,23 @@
 {
+  "name": "jwd-browser-tab-manager",
+  "version": "1.0.0",
+  "description": "Efficiently manage open tabs, detect and handle duplicate tabs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ApiCartOps/jwd-browser-tab-manager.git"
+  },
+  "homepage": "https://github.com/ApiCartOps/jwd-browser-tab-manager",
+  "author": "ApiCartOps",
   "devDependencies": {
     "sharp": "^0.34.5",
     "jest": "^29.0.0",
     "jest-environment-jsdom": "^29.0.0",
     "jsdom": "^22.1.0",
     "@playwright/test": "^1.35.0",
-    "web-ext": "^9.2.0"
+    "web-ext": "^9.2.0",
+    "tailwindcss": "^3.5.0",
+    "postcss": "^8.4.0",
+    "autoprefixer": "^10.4.0"
   },
   "dependencies": {
     "webextension-polyfill": "^0.9.0"
@@ -14,7 +26,10 @@
     "test": "jest --runInBand",
     "test:e2e": "playwright test",
     "screenshots": "node scripts/svg-to-png.js",
-    "build:xpi": "npx web-ext build --source-dir . --overwrite-dest --artifacts-dir tests/playwright/.web-ext-artifacts && node ./scripts/convert-zip-to-xpi.js"
+    "build:xpi": "npx web-ext build --source-dir . --overwrite-dest --artifacts-dir tests/playwright/.web-ext-artifacts && node ./scripts/convert-zip-to-xpi.js",
+    "build:css": "npx tailwindcss -i ./src/styles/tailwind.css -o ./dist/tailwind.css --minify",
+    "watch:css": "npx tailwindcss -i ./src/styles/tailwind.css -o ./dist/tailwind.css --watch",
+    "scan:css": "bash scripts/scan-legacy-css.sh"
   }
   ,
   "jest": {

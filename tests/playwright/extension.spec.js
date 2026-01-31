@@ -8,9 +8,9 @@ test('sanity: page loads and title contains manager', async ({ browser }) => {
   const page = await context.newPage();
 
   await page.goto('about:blank');
-  await page.setContent('<html><body><h1>Smart Tab Manager</h1></body></html>');
+  await page.setContent('<html><body><h1>jwd-browser-tab-manager</h1></body></html>');
   const text = await page.textContent('h1');
-  expect(text).toContain('Smart Tab Manager');
+  expect(text).toContain('jwd-browser-tab-manager');
 
   await context.close();
 });

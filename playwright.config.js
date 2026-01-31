@@ -1,4 +1,4 @@
-// Playwright configuration for chrome-duplicate-tabs
+// Playwright configuration for jwd-browser-tab-manager
 const { defineConfig } = require('@playwright/test');
 const path = require('path');
 
