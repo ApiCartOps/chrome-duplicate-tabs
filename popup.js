@@ -321,14 +321,16 @@ function updateSideMenuToggleUi() {
     const sideMenu = document.querySelector('.side-menu');
     if (!sideMenu) return;
     const btn = document.getElementById('toggleSideMenu');
-    if (!btn) return;
-    const icon = btn.querySelector('.btn-icon');
+    const inlineBtn = document.getElementById('toggleSideMenuInline');
+    const icon = btn && btn.querySelector('.btn-icon');
     if (sideMenu.classList.contains('expanded')) {
-      icon && (icon.textContent = '◀');
-      btn.title = 'Collapse side menu';
+      icon && (icon.textContent = '✖');
+      if (btn) { btn.title = 'Collapse side menu'; btn.setAttribute('aria-expanded', 'true'); }
+      if (inlineBtn) inlineBtn.setAttribute('aria-expanded', 'true');
     } else {
-      icon && (icon.textContent = '▶');
-      btn.title = 'Expand side menu';
+      icon && (icon.textContent = '☰');
+      if (btn) { btn.title = 'Expand side menu'; btn.setAttribute('aria-expanded', 'false'); }
+      if (inlineBtn) inlineBtn.setAttribute('aria-expanded', 'false');
     }
   } catch (e) { }
 }

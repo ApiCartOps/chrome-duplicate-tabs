@@ -49,8 +49,8 @@ body {
 }
 
 .side-menu {
-  width: 88px;
-  min-width: 72px;
+  width: 72px; /* slightly narrower collapsed state */
+  min-width: 64px;
   background: linear-gradient(180deg, #f7f8fb, #ffffff);
   border-radius: 8px;
   padding: 10px;
@@ -61,24 +61,26 @@ body {
   overflow: visible;
   position: relative;
   z-index: 4;
-  transition: width 0.18s ease, padding 0.12s ease;
+  transition: width 280ms cubic-bezier(.2,.8,.2,1), padding 220ms cubic-bezier(.2,.8,.2,1);
 }
 
 .side-menu.expanded {
-  width: 220px;
-  min-width: 180px;
+  width: 180px; /* less dramatic expansion */
+  min-width: 160px;
   padding: 12px;
 }
 
 .side-menu .btn .btn-label {
-  display: none;
+  display: inline-block;
   margin-left: 8px;
   font-weight: 700;
   color: #214;
+  opacity: 0;
+  transition: opacity 160ms ease;
 }
 
 .side-menu.expanded .btn .btn-label {
-  display: inline-block;
+  opacity: 1;
 }
 
 .side-menu .btn {

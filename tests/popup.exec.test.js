@@ -10,11 +10,11 @@ beforeEach(() => {
       <div id="tabsList"></div>
       <aside class="side-menu">
         <div class="actions">
-          <button id="listAllTabs"></button>
-          <button id="listDuplicateTabs"></button>
+          <button id="listAllTabs"><span class="btn-icon">📋</span><span class="btn-label">List All</span></button>
+          <button id="listDuplicateTabs"><span class="btn-icon">🔎</span><span class="btn-label">Duplicates</span></button>
         </div>
         <div class="side-menu-footer">
-          <button id="toggleSideMenu"></button>
+          <button id="toggleSideMenu" aria-expanded="false"><span class="btn-icon">☰</span><span class="btn-label">Menu</span></button>
         </div>
       </aside>
       <button id="exportListBtn"></button>
@@ -86,8 +86,15 @@ test('toggleSideMenu toggles class and persists', () => {
   expect(sideMenu.classList.contains('expanded')).toBe(true);
   expect(localStorage.getItem('sideMenuExpanded')).toBe('1');
 
+  // Toggle UI updates (aria-expanded and labels visible)
+  const toggleBtn = document.getElementById('toggleSideMenu');
+  expect(toggleBtn.getAttribute('aria-expanded')).toBe('true');
+  const label = document.querySelector('#listAllTabs .btn-label');
+  expect(label && label.textContent).toBe('List All');
+
   // Toggle again -> collapsed
   popup.toggleSideMenu();
   expect(sideMenu.classList.contains('expanded')).toBe(false);
   expect(localStorage.getItem('sideMenuExpanded')).toBe('0');
+  expect(toggleBtn.getAttribute('aria-expanded')).toBe('false');
 });
