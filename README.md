@@ -69,7 +69,7 @@ For development (rebuild on file changes):
 npm run watch:css
 ```
 
-The generated CSS is `dist/tailwind.css` and is included by `popup.html`. You can progressively adopt Tailwind utility classes while keeping the existing `popup.css` for bespoke styles.
+@note The `dist/tailwind.css` file is generated during CI and included in release packaging. For local development, run `npm run build:css` to generate `dist/tailwind.css` before testing or packaging. You can progressively adopt Tailwind utility classes while keeping custom rules as needed.
 
 ### File Structure
 ```

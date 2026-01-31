@@ -54,6 +54,43 @@ jobs:
           name: dist-css
           path: dist/tailwind.css
 
+  package-xpi:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+
+      - name: Build Tailwind CSS
+        run: |
+          npm run build:css
+
+      - name: Build XPI (Firefox)
+        run: |
+          npm run build:xpi
+
+      - name: Upload XPI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: xpi-artifacts
+          path: tests/playwright/.web-ext-artifacts/
+
+      - name: Upload dist CSS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-css
+          path: dist/tailwind.css
+
   e2e-edge:
     name: Playwright E2E (Edge)
     runs-on: windows-latest
