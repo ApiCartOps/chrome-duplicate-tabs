@@ -28,30 +28,30 @@
       </aside>
 
       <section class="content">
-        <header>
-          <div class="header-left">
-            <img src="icons/logo.svg" alt="Logo" class="app-logo">
-            <h1>jwd-browser-tab-manager</h1>
+        <header class="flex items-center mb-3">
+          <div class="header-left flex items-center gap-3">
+            <img src="icons/logo.svg" alt="Logo" class="app-logo w-10 h-10 rounded-md shadow-sm">
+            <h1 class="text-lg font-bold text-gray-900">jwd-browser-tab-manager</h1>
           </div>
         </header>
 
-        <div class="stats">
-          <div class="stat-item">
-            <span class="stat-label">Total Tabs:</span>
-            <span class="stat-value" id="totalTabs">0</span>
+        <div class="stats flex items-center gap-3 mb-3">
+          <div class="stat-item bg-gray-50 rounded-md p-2 min-w-[96px]">
+            <div class="stat-label text-xs text-gray-500">Total Tabs</div>
+            <div class="stat-value text-xl font-extrabold text-gray-900" id="totalTabs">0</div>
           </div>
-          <div class="stat-item">
-            <span class="stat-label">Duplicate Tabs:</span>
-            <span class="stat-value" id="duplicateTabs">0</span>
+          <div class="stat-item bg-gray-50 rounded-md p-2 min-w-[96px]">
+            <div class="stat-label text-xs text-gray-500">Duplicate Tabs</div>
+            <div class="stat-value text-xl font-extrabold text-gray-900" id="duplicateTabs">0</div>
           </div>
-          <div class="stats-right">
-            <button id="exportListBtn" class="btn btn-outline">📤 Export</button>
-            <button id="toggleSideMenuInline" class="btn btn-outline" title="Toggle side menu" aria-label="Toggle side menu">⇔</button>
-            <button id="toggleFullBtn" class="btn btn-outline" title="Open full view" aria-label="Open full view">⛶</button>
-            <div class="export-controls">
-              <label><input type="checkbox" id="exportCsv" checked> CSV</label>
-              <label><input type="checkbox" id="exportJson"> JSON</label>
-              <div class="export-scope">
+          <div class="stats-right ml-auto flex items-center gap-2">
+            <button id="exportListBtn" class="btn btn-outline px-3 py-1 rounded border">📤 Export</button>
+            <button id="toggleSideMenuInline" class="btn btn-outline px-3 py-1 rounded" title="Toggle side menu" aria-label="Toggle side menu">⇔</button>
+            <button id="toggleFullBtn" class="btn btn-outline px-3 py-1 rounded" title="Open full view" aria-label="Open full view">⛶</button>
+            <div class="export-controls flex items-center gap-2">
+              <label class="text-sm"><input type="checkbox" id="exportCsv" checked> CSV</label>
+              <label class="text-sm"><input type="checkbox" id="exportJson"> JSON</label>
+              <div class="export-scope flex gap-2 text-sm items-center">
                 <label><input type="radio" name="exportScope" id="exportScopeAll" value="all" checked> All</label>
                 <label><input type="radio" name="exportScope" id="exportScopeDuplicates" value="duplicates"> Dups</label>
               </div>

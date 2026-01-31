@@ -476,7 +476,7 @@ async function listAllTabs() {
   // Create tab items
   tabs.forEach(tab => {
     const tabItem = document.createElement('div');
-    tabItem.className = 'tab-item';
+    tabItem.className = 'tab-item bg-white rounded-md p-3 mb-2 flex items-center gap-3 border border-gray-100 hover:bg-gray-50';
 
     const isDuplicate = duplicateUrls.has(tab.url);
 
@@ -484,18 +484,18 @@ async function listAllTabs() {
     const statusHtml = tab.status ? `<span class="status-badge">${tab.status}</span>` : '';
 
     tabItem.innerHTML = `
-      <div class="tab-row">
+      <div class="tab-row flex items-center gap-3 w-full">
         ${faviconHtml}
-        <div class="tab-content">
-          <div class="tab-title">
+        <div class="tab-content flex-1 min-w-0">
+          <div class="tab-title text-sm font-semibold text-gray-900">
             ${tab.title || 'Untitled'}
-            ${isDuplicate ? '<span class="duplicate-badge">DUPLICATE</span>' : ''}
+            ${isDuplicate ? '<span class="duplicate-badge bg-red-500 text-white rounded px-2 text-xs ml-2">DUPLICATE</span>' : ''}
             ${statusHtml}
           </div>
-          <div class="tab-url">${tab.url || ''}</div>
+          <div class="tab-url text-xs text-gray-500 truncate">${tab.url || ''}</div>
         </div>
-        <div class="tab-actions">
-          <button class="btn-close" title="Close tab">✖</button>
+        <div class="tab-actions flex items-center gap-2">
+          <button class="btn-close w-8 h-8 rounded border text-red-600" title="Close tab">✖</button>
         </div>
       </div>
     `;
@@ -560,11 +560,11 @@ async function listDuplicates() {
 
   for (const [url, groupTabs] of groups) {
     const groupEl = document.createElement('div');
-    groupEl.className = 'duplicate-group';
+    groupEl.className = 'duplicate-group bg-white rounded-md p-3 border border-gray-100 mb-3';
     groupEl.innerHTML = `
-      <div class="group-header">
-        <strong>${url}</strong> <span class="group-count">(${groupTabs.length})</span>
-        <button class="btn-close-group" title="Close duplicates for this URL">Close duplicates</button>
+      <div class="group-header flex items-center justify-between gap-2 mb-2">
+        <strong class="text-sm font-semibold text-gray-900">${url}</strong> <span class="group-count text-xs text-gray-500">(${groupTabs.length})</span>
+        <button class="btn-close-group bg-red-500 text-white px-3 py-1 rounded" title="Close duplicates for this URL">Close duplicates</button>
       </div>
       <div class="group-items"></div>
     `;
@@ -573,17 +573,17 @@ async function listDuplicates() {
 
     groupTabs.forEach(tab => {
       const item = document.createElement('div');
-      item.className = 'tab-item';
+      item.className = 'tab-item bg-white rounded-md p-3 mb-2 flex items-center gap-3 border border-gray-100 hover:bg-gray-50';
       const faviconHtml = tab.favIconUrl ? `<img class="tab-favicon" src="${tab.favIconUrl}" alt="favicon">` : '';
       const statusHtml = tab.status ? `<span class="status-badge">${tab.status}</span>` : '';
       item.innerHTML = `
-        <div class="tab-row">
+        <div class="tab-row flex items-center gap-3 w-full">
           ${faviconHtml}
-          <div class="tab-content">
-            <div class="tab-title">${tab.title || 'Untitled'} ${statusHtml}</div>
-            <div class="tab-url">${tab.url || ''}</div>
+          <div class="tab-content flex-1 min-w-0">
+            <div class="tab-title text-sm font-semibold text-gray-900">${tab.title || 'Untitled'} ${statusHtml}</div>
+            <div class="tab-url text-xs text-gray-500 truncate">${tab.url || ''}</div>
           </div>
-          <div class="tab-actions"><button class="btn-close">x</button></div>
+          <div class="tab-actions"><button class="btn-close w-8 h-8 rounded border">x</button></div>
         </div>
       `;
 
