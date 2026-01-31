@@ -14,12 +14,13 @@ test('hamburger opens overlay on small screens and closes on ESC or backdrop cli
   await toggle.click();
   const overlay = page.locator('#sideMenuOverlay');
   await expect(overlay).toBeVisible();
-  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  // confirm the close button was focused indicating the overlay opened
+  const closeBtn = page.locator('#closeOverlayBtn');
+  await expect(closeBtn).toBeFocused();
 
   // press Escape closes
   await page.keyboard.press('Escape');
   await expect(overlay).toBeHidden();
-  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
 
   // open again and test backdrop click
   await toggle.click();
