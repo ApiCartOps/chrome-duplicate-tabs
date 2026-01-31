@@ -8,8 +8,15 @@ beforeEach(() => {
       <span id="totalTabs"></span>
       <span id="duplicateTabs"></span>
       <div id="tabsList"></div>
-      <button id="listAllTabs"></button>
-      <button id="listDuplicateTabs"></button>
+      <aside class="side-menu">
+        <div class="actions">
+          <button id="listAllTabs"></button>
+          <button id="listDuplicateTabs"></button>
+        </div>
+        <div class="side-menu-footer">
+          <button id="toggleSideMenu"></button>
+        </div>
+      </aside>
       <button id="exportListBtn"></button>
       <input type="checkbox" id="exportCsv" checked />
       <input type="checkbox" id="exportJson" />
@@ -55,4 +62,32 @@ test('exec handles callback-style chrome.tabs.query', async () => {
   const popup = require('../popup.js');
   const res = await popup.exec.tabs.query({});
   expect(res).toBe(tabs);
+});
+
+test('toggleSideMenu toggles class and persists', () => {
+  // start with no persisted state
+  localStorage.removeItem('sideMenuExpanded');
+
+  // Mock minimal chrome API expected by init
+  global.chrome = {
+    tabs: { query: () => Promise.resolve([]) },
+    windows: { update: () => Promise.resolve() },
+    runtime: { sendMessage: () => Promise.resolve() }
+  };
+
+  const popup = require('../popup.js');
+
+  // Ensure side menu exists
+  const sideMenu = document.querySelector('.side-menu');
+  expect(sideMenu).toBeTruthy();
+
+  // Toggle once -> expanded
+  popup.toggleSideMenu();
+  expect(sideMenu.classList.contains('expanded')).toBe(true);
+  expect(localStorage.getItem('sideMenuExpanded')).toBe('1');
+
+  // Toggle again -> collapsed
+  popup.toggleSideMenu();
+  expect(sideMenu.classList.contains('expanded')).toBe(false);
+  expect(localStorage.getItem('sideMenuExpanded')).toBe('0');
 });

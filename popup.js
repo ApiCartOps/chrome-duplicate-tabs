@@ -13,6 +13,8 @@ const exportCsvCheckbox = document.getElementById('exportCsv');
 const exportJsonCheckbox = document.getElementById('exportJson');
 const exportScopeAllRadio = document.getElementById('exportScopeAll');
 const exportScopeDuplicatesRadio = document.getElementById('exportScopeDuplicates');
+const toggleSideMenuBtn = document.getElementById('toggleSideMenu');
+const toggleSideMenuInlineBtn = document.getElementById('toggleSideMenuInline');
 
 // Track which list is currently shown
 var currentListMode = null;
@@ -112,6 +114,16 @@ async function init() {
   try {
     if (groupTabsByDomainBtn) groupTabsByDomainBtn.disabled = !supportsTabGroups();
   } catch (e) {}
+
+  // Apply persisted side-menu state (remember expand/collapse between popups)
+  try {
+    const sideMenu = document.querySelector('.side-menu');
+    const stored = (localStorage && localStorage.getItem && localStorage.getItem('sideMenuExpanded')) || '0';
+    if (sideMenu && stored === '1') sideMenu.classList.add('expanded');
+    // Update toggle button icon/title
+    updateSideMenuToggleUi();
+  } catch (e) {}
+
   const allTabs = await exec.tabs.query({});
   // Build map of url -> all tabs with that url
   const urlMap = new Map();
@@ -248,6 +260,8 @@ function setupEventListeners() {
   if (closeDuplicateTabsBtn) closeDuplicateTabsBtn.addEventListener('click', closeDuplicateTabs);
   if (groupTabsByDomainBtn) groupTabsByDomainBtn.addEventListener('click', groupTabsByDomain);
   if (closeTabsExceptActiveBtn) closeTabsExceptActiveBtn.addEventListener('click', closeTabsExceptActive);
+  if (toggleSideMenuBtn) toggleSideMenuBtn.addEventListener('click', toggleSideMenu);
+  if (toggleSideMenuInlineBtn) toggleSideMenuInlineBtn.addEventListener('click', toggleSideMenu);
 }
 
 // Toggle full view: if opened as a normal tab (full=1) toggle CSS fullscreen class;
@@ -299,6 +313,35 @@ function handleKeydown(e) {
       toggleFullView();
     }
   } catch (err) { console.error('handleKeydown error', err); }
+}
+
+// Toggle side menu expand/collapse and remember the preference in localStorage
+function updateSideMenuToggleUi() {
+  try {
+    const sideMenu = document.querySelector('.side-menu');
+    if (!sideMenu) return;
+    const btn = document.getElementById('toggleSideMenu');
+    if (!btn) return;
+    const icon = btn.querySelector('.btn-icon');
+    if (sideMenu.classList.contains('expanded')) {
+      icon && (icon.textContent = '◀');
+      btn.title = 'Collapse side menu';
+    } else {
+      icon && (icon.textContent = '▶');
+      btn.title = 'Expand side menu';
+    }
+  } catch (e) { }
+}
+
+function toggleSideMenu() {
+  try {
+    const sideMenu = document.querySelector('.side-menu');
+    if (!sideMenu) return;
+    sideMenu.classList.toggle('expanded');
+    const expanded = sideMenu.classList.contains('expanded');
+    try { localStorage.setItem('sideMenuExpanded', expanded ? '1' : '0'); } catch (e) {}
+    updateSideMenuToggleUi();
+  } catch (e) { console.error('toggleSideMenu error', e); }
 }
 
 // Attach keyboard listener during init
@@ -727,4 +770,5 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
   module.exports = module.exports || {};
   module.exports.exec = exec;
   module.exports.supportsTabGroups = supportsTabGroups;
+  module.exports.toggleSideMenu = toggleSideMenu;
 }

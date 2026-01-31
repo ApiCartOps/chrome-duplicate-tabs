@@ -61,7 +61,38 @@ body {
   overflow: visible;
   position: relative;
   z-index: 4;
+  transition: width 0.18s ease, padding 0.12s ease;
 }
+
+.side-menu.expanded {
+  width: 220px;
+  min-width: 180px;
+  padding: 12px;
+}
+
+.side-menu .btn .btn-label {
+  display: none;
+  margin-left: 8px;
+  font-weight: 700;
+  color: #214;
+}
+
+.side-menu.expanded .btn .btn-label {
+  display: inline-block;
+}
+
+.side-menu .btn {
+  justify-content: center;
+}
+
+.side-menu.expanded .btn {
+  width: 100%;
+  height: 40px;
+  justify-content: flex-start;
+  padding: 0 12px;
+}
+
+.side-menu-footer { margin-top: auto; display: flex; justify-content: center; }
 
 .content {
   flex: 1 1 auto;
