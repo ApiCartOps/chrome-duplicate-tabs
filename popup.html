@@ -27,8 +27,8 @@
       </aside>
 
       <!-- Overlay for small-screen side menu (hidden by default). Shown when hamburger toggled. -->
-      <div id="sideMenuOverlay" class="hidden fixed inset-0 z-50 items-start justify-start">
-        <div class="overlay-backdrop absolute inset-0 bg-black/50"></div>
+      <div id="sideMenuOverlay" class="hidden fixed inset-0 z-50 items-start justify-start" style="display:none">
+        <div class="overlay-backdrop absolute inset-0 bg-black/50" style="position:absolute; inset:0; background: rgba(0,0,0,0.5);"></div>
         <nav class="overlay-panel relative bg-white w-full max-w-xs h-full p-4 overflow-y-auto shadow-lg">
           <button id="closeOverlayBtn" class="btn btn-outline mb-4" aria-label="Close menu">✖</button>
           <div class="overlay-items flex flex-col gap-3">
