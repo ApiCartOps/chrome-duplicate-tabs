@@ -1,4 +1,4 @@
-// Background service worker (clean) for Smart Tab Manager
+// Background service worker (clean) for jwd-browser-tab-manager
 // Tracks tabs and their URLs to compute duplicate counts
 
 let tabRegistry = new Map(); // tabId -> normalized URL

@@ -1,4 +1,4 @@
-# 📌 Smart Tab Manager
+# 📌 jwd-browser-tab-manager
 
 A powerful Chrome Extension (Manifest V3) that helps you efficiently manage open tabs, detect and handle duplicate tabs, and organize your browsing experience.
 
@@ -18,8 +18,8 @@ A powerful Chrome Extension (Manifest V3) that helps you efficiently manage open
 
 1. Clone this repository or download the source code
    ```bash
-   git clone https://github.com/ApiCartOps/chrome-duplicate-tabs.git
-   cd chrome-duplicate-tabs
+   git clone https://github.com/ApiCartOps/jwd-browser-tab-manager.git
+   cd jwd-browser-tab-manager
    ```
 
 2. Open Chrome and navigate to `chrome://extensions/`
@@ -30,7 +30,7 @@ A powerful Chrome Extension (Manifest V3) that helps you efficiently manage open
 
 5. Select the directory containing the extension files
 
-6. The Smart Tab Manager extension should now appear in your extensions list
+6. The jwd-browser-tab-manager extension should now appear in your extensions list
 
 ## Usage
 

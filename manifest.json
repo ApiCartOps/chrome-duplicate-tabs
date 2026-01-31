@@ -1,8 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "Smart Tab Manager",
+  "name": "jwd-browser-tab-manager",
   "version": "1.0.0",
   "description": "Efficiently manage open tabs, detect and handle duplicate tabs",
+  "short_name": "JWD Tab Manager",
+  "homepage_url": "https://github.com/ApiCartOps/jwd-browser-tab-manager",
   "permissions": [
     "tabs",
     "storage",

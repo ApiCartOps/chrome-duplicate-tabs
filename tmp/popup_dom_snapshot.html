@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Tab Manager</title>
+    <title>jwd-browser-tab-manager</title>
     <link rel="stylesheet" href="popup.css">
   </head>
   <body>
@@ -10,7 +10,7 @@
         <div class="actions">
           <button id="listAllTabs" class="btn btn-primary" title="List all tabs" aria-label="List all tabs"><span class="btn-icon">📋</span></button>
           <button id="listDuplicateTabs" class="btn btn-secondary" title="List duplicates" aria-label="List duplicates"><span class="btn-icon">🔎</span></button>
-          <button id="exportQuickBtn" class="btn btn-outline" title="Export tabs" aria-label="Export tabs"><span class="btn-icon">📤</span></button>
+          <!-- removed quick-export from side menu to avoid duplicate controls -->
           <!-- export controls moved to header/stats to reduce duplication -->
           <button id="closeDuplicateTabs" class="btn btn-danger" title="Close duplicate tabs" aria-label="Close duplicate tabs"><span class="btn-icon">🗑️</span></button>
           <button id="groupTabsByDomain" class="btn btn-info" title="Group tabs by domain" aria-label="Group tabs by domain"><span class="btn-icon">🗂️</span></button>
@@ -20,7 +20,10 @@
 
       <section class="content">
         <header>
-          <h1>📌 Smart Tab Manager</h1>
+          <div class="header-left">
+            <img src="icons/logo.svg" alt="Logo" class="app-logo">
+            <h1>jwd-browser-tab-manager</h1>
+          </div>
         </header>
 
         <div class="stats">
@@ -34,6 +37,7 @@
           </div>
           <div class="stats-right">
             <button id="exportListBtn" class="btn btn-outline">📤 Export</button>
+            <button id="toggleFullBtn" class="btn btn-outline" title="Open full view" aria-label="Open full view">⛶</button>
             <div class="export-controls">
               <label><input type="checkbox" id="exportCsv" checked="" style=""> CSV</label>
               <label><input type="checkbox" id="exportJson" style=""> JSON</label>
