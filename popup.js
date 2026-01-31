@@ -266,10 +266,10 @@ function setupEventListeners() {
   // Overlay controls for small screens
   const closeOverlayBtn = document.getElementById('closeOverlayBtn');
   if (closeOverlayBtn) closeOverlayBtn.addEventListener('click', closeOverlay);
-  const overlay = document.getElementById('sideMenuOverlay');
-  if (overlay) {
+  const overlayEl = document.getElementById('sideMenuOverlay');
+  if (overlayEl) {
     // clicking backdrop closes overlay
-    const backdrop = overlay.querySelector('.overlay-backdrop');
+    const backdrop = overlayEl.querySelector('.overlay-backdrop');
     if (backdrop) backdrop.addEventListener('click', () => closeOverlay());
 
     // overlay menu items trigger existing actions
@@ -359,15 +359,15 @@ function updateSideMenuToggleUi() {
 
 function openOverlay() {
   try {
-    const overlay = document.getElementById('sideMenuOverlay');
-    if (!overlay) return;
+    const overlayEl = document.getElementById('sideMenuOverlay');
+    if (!overlayEl) return;
     // ensure visible regardless of whether Tailwind utilities are present
-    overlay.classList.remove('hidden');
-    try { overlay.style.display = 'flex'; } catch (e) {}
+    overlayEl.classList.remove('hidden');
+    try { overlayEl.style.display = 'flex'; } catch (e) {}
     // make overlay focusable and add handler so key events are reliably captured
     try {
-      overlay.tabIndex = -1;
-      overlay.addEventListener('keydown', overlayEscapeHandler, true);
+      overlayEl.tabIndex = -1;
+      overlayEl.addEventListener('keydown', overlayEscapeHandler, true);
     } catch (e) {}
     // focus management: move focus to close button (last to retain focus)
     const closeBtn = document.getElementById('closeOverlayBtn');
@@ -384,10 +384,10 @@ function openOverlay() {
 
 function closeOverlay() {
   try {
-    const overlay = document.getElementById('sideMenuOverlay');
-    if (!overlay) return;
-    overlay.classList.add('hidden');
-    try { overlay.style.display = 'none'; } catch (e) {}
+    const overlayEl = document.getElementById('sideMenuOverlay');
+    if (!overlayEl) return;
+    overlayEl.classList.add('hidden');
+    try { overlayEl.style.display = 'none'; } catch (e) {}
     // restore aria-expanded
     const btn = document.getElementById('toggleSideMenu');
     const inlineBtn = document.getElementById('toggleSideMenuInline');
@@ -397,8 +397,8 @@ function closeOverlay() {
     const btnEl = document.getElementById('toggleSideMenu');
     btnEl && btnEl.focus();
     window.removeEventListener('keydown', overlayEscapeHandler);
-    try { overlay.removeEventListener('keydown', overlayEscapeHandler, true); } catch (e) {}
-    try { overlay.tabIndex = -1; } catch (e) {}
+    try { overlayEl.removeEventListener('keydown', overlayEscapeHandler, true); } catch (e) {}
+    try { overlayEl.tabIndex = -1; } catch (e) {}
   } catch (e) { console.error('closeOverlay error', e); }
 }
 
@@ -410,8 +410,8 @@ function toggleSideMenu() {
   try {
     if (isSmallScreen()) {
       // show overlay on small screens
-      const overlay = document.getElementById('sideMenuOverlay');
-      if (overlay && overlay.classList.contains('hidden')) openOverlay();
+      const overlayEl = document.getElementById('sideMenuOverlay');
+      if (overlayEl && overlayEl.classList.contains('hidden')) openOverlay();
       else closeOverlay();
       return;
     }
